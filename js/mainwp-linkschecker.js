@@ -152,11 +152,11 @@ mainwp_linkschecker_showhide_start_specific = function(pObj, bulk, selector) {
         }
         else if (response && response['result'] == 'SUCCESS') {                
             if (showhide == 'show') {
-                pObj.text(__("Hide Broken Links Checker Plugin"));
+                pObj.text(__("Hide Broken Link Checker Plugin"));
                 pObj.attr('showhide', 'hide');
                 parent.find('.plugin_hidden_title').html(__('No'));
             } else {
-                pObj.text(__("Show Broken Links Checker Plugin"));        
+                pObj.text(__("Show Broken Link Checker Plugin"));        
                 pObj.attr('showhide', 'show');
                 parent.find('.plugin_hidden_title').html(__('Yes'));
             }
@@ -213,7 +213,7 @@ mainwp_linkschecker_upgrade_start_specific = function(pObj, bulk, selector) {
             workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
         else if (response && response['upgrades'][slug]) {           
-            pObj.after('Broken Links Checker plugin has been updated');
+            pObj.after('Broken Link Checker plugin has been updated');
             pObj.remove();
         }  
         else {
@@ -263,7 +263,7 @@ mainwp_linkschecker_active_start_specific = function(pObj, bulk, selector) {
             workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
         else if (response && response['result']) {
-            pObj.after('Broken Links Checker plugin has been activated');
+            pObj.after('Broken Link Checker plugin has been activated');
             pObj.remove();
         }           
         if (bulk) {

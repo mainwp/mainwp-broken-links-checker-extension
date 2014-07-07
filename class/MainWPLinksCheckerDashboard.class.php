@@ -141,7 +141,7 @@ class MainWPLinksCheckerDashboard
             if (is_array($websites) && count($websites) > 0) {                
                self::getDashboardTableRow($websites);                  
             } else {
-               _e("<tr><td colspan=\"6\">No websites were found with the Broken Links Checker plugin installed.</td></tr>");
+               _e("<tr><td colspan=\"6\">No websites were found with the Broken Link Checker plugin installed.</td></tr>");
             }
             ?>
            </tbody>
@@ -173,7 +173,7 @@ class MainWPLinksCheckerDashboard
            
            if (isset($website['linkschecker_active']) && $website['linkschecker_active']) {
                 $location = "options-general.php?page=link-checker-settings";                   
-                $open_link = ' | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location) . '" target="_blank">' . __("Open Broken Links Checker") . '</a></span>';
+                $open_link = ' | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location) . '" target="_blank">' . __("Broken Link Checker Settings") . '</a></span>';
                 
                 $location2 = "tools.php?page=view-broken-links&filter_id=broken";                   
                 $broken_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location2) . '" target="_blank">' . $website['broken'] . '</a></span>';
@@ -187,7 +187,7 @@ class MainWPLinksCheckerDashboard
                 $location5 = "tools.php?page=view-broken-links&filter_id=all";                   
                 $all_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location5) . '" target="_blank">' . $website['all'] . '</a></span>';
                 
-                $showhide_link = ' | <a href="#" class="linkschecker_showhide_plugin" showhide="' . $showhide_action . '">'. ($showhide_action === "show" ? __('Show Broken Links Checker Plugin') : __('Hide Broken Links Checker Plugin')) . '</a>';
+                $showhide_link = ' | <a href="#" class="linkschecker_showhide_plugin" showhide="' . $showhide_action . '">'. ($showhide_action === "show" ? __('Show Broken Link Checker Plugin') : __('Hide Broken Link Checker Plugin')) . '</a>';
            }
            
            $cls_update = !empty($invalid_link) || !empty($not_found_mess) ? "update" : $cls_update;
@@ -241,13 +241,13 @@ class MainWPLinksCheckerDashboard
             if (!isset($dismiss[$website_id])) {                    
                 $plugin_slug = "broken-link-checker/broken-link-checker.php";
                if (isset($website['linkschecker_active']) && empty($website['linkschecker_active']))
-                   $active_link = '<a href="#" class="linkschecker_active_plugin" >' . __('Activate Broken Links Checker plugin') . '</a>';
+                   $active_link = '<a href="#" class="linkschecker_active_plugin" >' . __('Activate Broken Link Checker plugin') . '</a>';
 
 
                if (isset($website['linkschecker_upgrade'])) { 
                    if (isset($website['linkschecker_upgrade']['new_version']))
                        $version = $website['linkschecker_upgrade']['new_version'];
-                   $update_link = ' | <a href="#" class="linkschecker_upgrade_plugin" >' . __('Update Broken Links Checker plugin'). '</a>';
+                   $update_link = ' | <a href="#" class="linkschecker_upgrade_plugin" >' . __('Update Broken Link Checker plugin'). '</a>';
                    if (isset($website['linkschecker_upgrade']['plugin']))
                        $plugin_slug = $website['linkschecker_upgrade']['plugin'];
                }

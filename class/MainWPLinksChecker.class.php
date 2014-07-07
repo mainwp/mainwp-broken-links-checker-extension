@@ -140,7 +140,7 @@ class MainWPLinksChecker
             <?php 
             if (!$lc->active) {
                 echo '<br class="clearfix">';
-                echo "<span style=\"float:left\">". __("Broken Links Checker plugin not found or not activated on the website.") . "</span>";
+                echo "<span style=\"float:left\">". __("Broken Link Checker plugin not found or not activated on the website.") . "</span>";
                 echo '<br class="clearfix">';
                 echo '<br class="clearfix">';
             } else {
