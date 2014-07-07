@@ -1,0 +1,69 @@
+#mainwp-linkschecker-settings tr.check-report label {
+    width: 200px;
+    display: inline-block;
+}
+
+#mainwp_widget_linkschecker_content{
+    text-align: center;
+}
+
+#mwps-setting-ext-working .status {
+    font-style: italic;
+}
+
+#mainwp-lc-tips {
+    display: none;
+}
+.mainwp-lc-tut, #mainwp-lc-tips {
+    display: none;
+}
+
+#mainwp_managesites_content table th.column-score_desktop, #mainwp_managesites_content table th.column-score_mobile,
+#mainwp_managesites_content table tr td.column-score_desktop, #mainwp_managesites_content table tr td.column-score_mobile{
+   text-align: center; 
+}
+.mwp_lc_count_links {
+    float: left;
+    margin: 40px 5px 10px;
+    width: 23%;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+.mwp_lc_count_links .number {
+    display: inline-block;
+    font-size: 40px;
+    margin: 0 0 25px;
+}
+
+.mwp_lc_count_links.all {
+    color: #7fb100;
+}
+.mwp_lc_count_links.dismissed {
+    color: #0074a2;
+}
+.mwp_lc_count_links.broken {
+    color: red;
+}
+.mwp_links_checker_detail {
+    background: none repeat scroll 0 0 #7fb100;
+    height: 2em;
+    margin: 2em auto 1em;
+    padding: 0.5em 2em;
+    text-align: center;
+    vertical-align: middle;
+    width: 60%;
+}
+
+.mwp_links_checker_detail a {
+    color: #fff;
+    font-size: 16px;
+    display: inline-block;
+}
+
+.mwp_network_links_checker_detail {
+    text-transform: uppercase;
+    font-size: 16px;
+    margin: 25px 0 20px;
+}
+
+
