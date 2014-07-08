@@ -6,7 +6,7 @@ Description: MainWP Broken Links Checker Extension.
 Version: 0.0.1
 Author: MainWP
 Author URI: 
-Icon URI: 
+Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/07/mainwp-broken-links-checker-extension.png
 */
 
 
