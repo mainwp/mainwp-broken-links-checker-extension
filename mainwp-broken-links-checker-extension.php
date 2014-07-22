@@ -9,20 +9,21 @@ Author URI:
 Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/07/mainwp-broken-links-checker-extension.png
 */
 
+if (!defined('MWP_BROKEN_LINKS_CHECKER_DIR'))
+    define ('MWP_BROKEN_LINKS_CHECKER_DIR', plugin_dir_path(__FILE__));
+
+if (!defined('MWP_BROKEN_LINKS_CHECKER_URL'))
+    define ('MWP_BROKEN_LINKS_CHECKER_URL', plugin_dir_url(__FILE__));
+
 
 class MainWPLinksCheckerExtension
 {    
     public  $plugin_handle = "mainwp-links-checker-extension";
-    public static $plugin_url;
     public $plugin_slug;
-    public $plugin_dir;    
     
     public function __construct()
-    {
-        $this->plugin_dir = plugin_dir_path(__FILE__);
-        self::$plugin_url = plugin_dir_url(__FILE__);
-        $this->plugin_slug = plugin_basename(__FILE__);
-                
+    {        
+        $this->plugin_slug = plugin_basename(__FILE__);                
         add_action('init', array(&$this, 'init'));
         add_filter('plugin_row_meta', array(&$this, 'plugin_row_meta'), 10, 2);
         add_action('admin_init', array(&$this, 'admin_init'));
@@ -46,9 +47,8 @@ class MainWPLinksCheckerExtension
 
     public function admin_init()
     {
-        wp_enqueue_style('mainwp-linkschecker-extension', self::$plugin_url . 'css/mainwp-linkschecker.css');
-        wp_enqueue_script('mainwp-linkschecker-extension', self::$plugin_url . 'js/mainwp-linkschecker.js');        
-        $translation_array = array( 'dashboard_sitename' => get_bloginfo( 'name' ));        
+        wp_enqueue_style('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css');
+        wp_enqueue_script('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js');        
         MainWPLinksChecker::Instance()->admin_init();             
         MainWPLinksCheckerDashboard::Instance()->admin_init();
     }
