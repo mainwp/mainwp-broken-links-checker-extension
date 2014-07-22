@@ -17,7 +17,6 @@
 .mainwp-lc-tut, #mainwp-lc-tips {
     display: none;
 }
-
 #mainwp_managesites_content table th.column-score_desktop, #mainwp_managesites_content table th.column-score_mobile,
 #mainwp_managesites_content table tr td.column-score_desktop, #mainwp_managesites_content table tr td.column-score_mobile{
    text-align: center; 
@@ -34,7 +33,6 @@
     font-size: 40px;
     margin: 0 0 25px;
 }
-
 .mwp_lc_count_links.all {
     color: #7fb100;
 }
@@ -66,4 +64,128 @@
     margin: 25px 0 20px;
 }
 
+.mwp-blc-url-editor-buttons {
+    display: none;
+    margin-left: 12px;
+    margin-top: 2px;
+    width: 95%;
+}
+
+
+.color-code-link-status td.column-title {
+    word-wrap: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+}
+.color-code-link-status td.mwp-column-status {
+    cursor: pointer;
+}
+
+td.mwp-column-link-text, td.mwp-column-new-link-text {
+    cursor: pointer;
+}
+
+.blc-redirect .blc-link-url {
+    background-image: url("../images/blue_dot.png");
+}
+
+
+.link-status-error .blc-link-url {
+	background-image: url("../images/font-awesome/font-awesome-exclamation-sign.png");
+}
+
+.link-status-warning .blc-link-url {
+	background-image: url("../images/font-awesome/font-awesome-warning-sign.png");
+}
+
+.blc-excluded-link {
+	background-color: #E2E2E2;
+}
+
+.blc-permanently-broken-hl {
+	background-image: url("../images/red_highlight.png");
+}
+
+/* Status colors */
+.color-code-link-status .http-code,
+.color-code-link-status .status-text
+{
+    font-weight: bold;
+}
+
+.color-code-link-status  .link-status-unknown td.mwp-column-status .status-text,
+.color-code-link-status  .link-status-unknown td.mwp-column-status .http-code
+{
+	color: gray;
+	font-weight: normal;
+}
+
+.color-code-link-status  .link-status-ok td.mwp-column-status .status-text,
+.color-code-link-status  .link-status-ok td.mwp-column-status .http-code
+{
+	color: green;
+}
+
+.color-code-link-status  .link-status-info td.mwp-column-status .status-text,
+.color-code-link-status  .link-status-info td.mwp-column-status .http-code
+{
+    color: blue;
+}
+
+.color-code-link-status  .link-status-warning td.mwp-column-status .status-text,
+.color-code-link-status  .link-status-warning td.mwp-column-status .http-code
+{
+    color: #FF8C00; /*#FFA500*/
+}
+
+.color-code-link-status  .link-status-error td.mwp-column-status .status-text,
+.color-code-link-status  .link-status-error td.mwp-column-status .http-code
+{
+    color: red;
+}
+
+tr.blc-link-details {
+    display: none;
+}
+.link-last-checked {
+    color: gray;
+}
+.blc-small-image {
+    vertical-align: middle;
+}
+
+td.column-redirect-url
+{
+	overflow:  hidden;
+	-o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+	word-wrap: normal;
+}
+.blc-inline-editor-content {
+    max-width: 600px;
+}
+
+.blc-inline-editor .blc-input-text-wrap input[type="text"] {
+    width: 100%;
+}
+.blc-inline-editor label span.title {
+    display: block;
+    float: left;
+    width: 5em;
+}
+.blc-inline-editor span.title {
+    line-height: 1.8em;
+}
+.blc-inline-editor .blc-input-text-wrap {
+    display: block;
+    margin-left: 5em;
+}
+
+img.waiting {
+    float: right;
+    padding: 4px 8px 0;
+    vertical-align: top;
+}
 
