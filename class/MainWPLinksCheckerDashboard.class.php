@@ -166,7 +166,7 @@ class MainWPLinksCheckerDashboard
            $cls_active = (isset($website['linkschecker_active']) && !empty($website['linkschecker_active'])) ? "active" : "inactive";
            $cls_update = (isset($website['linkschecker_upgrade'])) ? "update" : "";
            $cls_update = ($cls_active == "inactive") ? "update" : $cls_update;
-           $showhide_action = ($website['hide_linkschecker'] == 1) ? 'show' : 'hide';
+           $showhide_action = ($website['hide_linkschecker'] == 1) ? 'show' : 'hide';           
            
            $showhide_link = $open_link = $invalid_link = $not_found_mess = "";
            $broken_link = $redirects_link = $dismissed_link = $all_link = "";
@@ -377,6 +377,7 @@ class MainWPLinksCheckerDashboard
                         $site['linkschecker_active'] = 0;      
                     
                     $links_data = isset($linkschecker_data[$site['id']]) ? $linkschecker_data[$site['id']] : array();
+                    $site['link_data'] = unserialize($links_data['link_data']);
                     $site['hide_linkschecker'] = isset($links_data['hide_plugin']) && $links_data['hide_plugin'] ? 1 : 0;                    
                     $link_info = unserialize($links_data['link_info']);
                     //print_r($links_data);                    
@@ -386,7 +387,7 @@ class MainWPLinksCheckerDashboard
                         $site['redirects'] = $link_info['redirects'];
                         $site['dismissed'] = $link_info['dismissed'];
                         $site['all'] = $link_info['all'];
-                    }                    
+                    }                        
                     // get upgrade info
                     $site['linkschecker_plugin_version'] = $plugin['version'];
                     $plugin_upgrades = json_decode($website->plugin_upgrades, 1);                                     

@@ -1,7 +1,7 @@
 <?php
 class MainWPLinksCheckerDB
 {    
-    private $mainwp_linkschecker_db_version = "1.2";        
+    private $mainwp_linkschecker_db_version = "1.4";        
     private $table_prefix;
     
     //Singleton
@@ -50,6 +50,7 @@ class MainWPLinksCheckerDB
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `site_id` text NOT NULL,
 `link_info` text NOT NULL DEFAULT "",
+`link_data` longtext NOT NULL DEFAULT "",
 `active` tinyint(1) NOT NULL DEFAULT 1,
 `hide_plugin` tinyint(1) NOT NULL DEFAULT 0';
         if ($currentVersion == '')
@@ -70,30 +71,30 @@ PRIMARY KEY  (`id`)  ';
         update_option('mainwp_linkschecker_db_version', $this->mainwp_linkschecker_db_version);
     } 
    
-    public function updateLinksChecker($setting)
+    public function updateLinksChecker($data)
     {
          /** @var $wpdb wpdb */
         global $wpdb;        
-        $id = isset($setting['id']) ? $setting['id'] : 0;		        
-        $site_id = isset($setting['site_id']) ? $setting['site_id'] : "";
-        //print_r($setting);
+        $id = isset($data['id']) ? $data['id'] : 0;		        
+        $site_id = isset($data['site_id']) ? $data['site_id'] : "";
+        //print_r($data);
         if (!empty($id)) {
-            if ($wpdb->update($this->tableName('linkschecker'), $setting, array('id' => intval($id)))) { 				                
+            if ($wpdb->update($this->tableName('linkschecker'), $data, array('id' => intval($id)))) { 				                
                 return $this->getLinksCheckerBy('id', $id);      			                
             }
             //echo $wpdb->last_error;
         } else if (!empty($site_id)) {
             $current = $this->getLinksCheckerBy('site_id', $site_id);              
             if (!empty($current)) {
-                if ($wpdb->update($this->tableName('linkschecker'), $setting, array('site_id' => $site_id))) 				
+                if ($wpdb->update($this->tableName('linkschecker'), $data, array('site_id' => $site_id))) 				
                     return $this->getLinksCheckerBy('site_id', $site_id);      			
             } else {
-               if($wpdb->insert($this->tableName('linkschecker'), $setting))                   
+               if($wpdb->insert($this->tableName('linkschecker'), $data))                   
                     return $this->getLinksCheckerBy('id', $wpdb->insert_id);                  
             }
         } else {
-            unset($setting['id']);
-            if($wpdb->insert($this->tableName('linkschecker'), $setting)) {                   
+            unset($data['id']);
+            if($wpdb->insert($this->tableName('linkschecker'), $data)) {                   
                 return $this->getLinksCheckerBy('id', $wpdb->insert_id);  
             }            
         }        		
@@ -137,10 +138,10 @@ PRIMARY KEY  (`id`)  ';
             $sql = "SELECT * FROM " . $this->tableName('linkschecker') . " WHERE 1 " . $where;           
             return $wpdb->get_results($sql);
         }  
-        $setting = null;
+        $data = null;
         if (!empty($sql))
-            $setting = $wpdb->get_row($sql);                
-        return $setting;
+            $data = $wpdb->get_row($sql);                
+        return $data;
     }
     
     protected function escape($data)
