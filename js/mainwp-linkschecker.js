@@ -1,6 +1,16 @@
 
 jQuery(document).ready(function($) {  
-         
+        
+    $('#blc_dashboard_tab_lnk').on('click', function () {   
+        showBLCheckerTab(true, false);
+        return false;
+    });
+    
+    $('#blc_broken_links_tab_lnk').on('click', function () {  
+        showBLCheckerTab(false, true);
+        return false;
+    });
+    
     $('#mwp_linkschecker_btn_display').live('click', function() {                     
        $(this).closest('form').submit();
     });
@@ -83,8 +93,30 @@ jQuery(document).ready(function($) {
             } 
         },'json'); 
     });
-    
+        
 });
+  
+
+showBLCheckerTab = function(dashboard,links) {
+    var dashboard_tab_lnk = jQuery("#blc_dashboard_tab_lnk");
+    if (dashboard)  dashboard_tab_lnk.addClass('mainwp_action_down');
+    else dashboard_tab_lnk.removeClass('mainwp_action_down'); 
+
+    var links_tab_lnk = jQuery("#blc_broken_links_tab_lnk");
+    if (links) links_tab_lnk.addClass('mainwp_action_down');
+    else links_tab_lnk.removeClass('mainwp_action_down');
+    
+    var dashboard_tab = jQuery("#blc_dashboard_tab");    
+    var links_tab = jQuery("#blc_broken_links_tab");    
+    
+    if (dashboard) {
+        dashboard_tab.show();
+        links_tab.hide();            
+    } else if (links) {
+        dashboard_tab.hide();        
+        links_tab.show();       
+    }   
+};
 
 var linkschecker_bulkMaxThreads = 3;
 var linkschecker_bulkTotalThreads = 0;
@@ -390,3 +422,28 @@ lc_showhide_quick_tut = function() {
     jQuery('.mainwp-lc-tut').hide();   
     jQuery('.mainwp-lc-tut[number="' + tut + '"]').show();   
 }
+
+
+
+mainwp_broken_links_checker_table_reinit = function () {
+    if (jQuery('#mainwp_blc_links_table').hasClass('tablesorter-default'))
+    {
+        jQuery('#mainwp_blc_links_table').trigger("updateAll").trigger('destroy.pager').tablesorterPager({container:jQuery("#pager")});
+    }
+    else
+    {
+        jQuery('#mainwp_blc_links_table').tablesorter({
+            cssAsc:"desc",
+            cssDesc:"asc",
+            cssChildRow: "expand-child",
+            textExtraction:function (node) {
+                if (jQuery(node).find('abbr').length == 0) {
+                    return node.innerHTML
+                } else {
+                    return jQuery(node).find('abbr')[0].title;
+                }
+            },
+            selectorHeaders: "> thead th:not(:first), > thead td:not(:first), > tfoot th:not(:first), > tfoot td:not(:first)"
+        }).tablesorterPager({container:jQuery("#pager")});
+    }
+};
