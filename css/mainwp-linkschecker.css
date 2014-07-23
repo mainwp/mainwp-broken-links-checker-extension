@@ -108,8 +108,8 @@ td.mwp-column-link-text, td.mwp-column-new-link-text {
 }
 
 /* Status colors */
-.color-code-link-status .http-code,
-.color-code-link-status .status-text
+.color-code-link-status .mini-status .http-code,
+.color-code-link-status .mini-status .status-text
 {
     font-weight: bold;
 }
@@ -189,3 +189,10 @@ img.waiting {
     vertical-align: top;
 }
 
+
+.mini-status, .mini-status th, .mini-status td {
+    border: 0 none;
+    color: gray;
+    font-size: 1em;
+    padding: 0;
+}

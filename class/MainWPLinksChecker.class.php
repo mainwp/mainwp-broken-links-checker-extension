@@ -32,6 +32,7 @@ class MainWPLinksChecker
         add_action('mainwp-site-synced', array(&$this, 'site_synced'), 10, 1);  
         add_action('mainwp_delete_site', array(&$this, 'mwp_delete_site'), 10, 1);
         add_action( 'wp_ajax_mainwp_broken_links_checker_edit_link', array($this,'ajax_edit_link') );
+        add_action( 'wp_ajax_mainwp_broken_links_checker_unlink', array($this,'ajax_unlink') );
     }
     
     public function admin_init() {
@@ -176,16 +177,16 @@ class MainWPLinksChecker
     }
     
     public function ajax_edit_link(){
-        //if (!check_ajax_referer('mwp_blc_edit', false, false)){
-                die( json_encode( array(
-                    'error' => __("You're not allowed to do that!") 
-                 )));
-        //}
+        if (!check_ajax_referer('mwp_blc_edit', false, false)){
+            die( json_encode( array(
+                'error' => __("You're not allowed to do that!") 
+             )));
+        }
 
         if ( empty($_POST['site_id']) || empty($_POST['link_id']) || empty($_POST['new_url']) || !is_numeric($_POST['link_id']) ) {
-                die( json_encode( array(
-                        'error' => __("Error : site_id, link_id or new_url not specified")
-                )));
+            die( json_encode( array(
+                    'error' => __("Error : site_id, link_id or new_url not specified")
+            )));
         }
 
         $post_data = array('mwp_action' => 'edit_link',
@@ -195,8 +196,101 @@ class MainWPLinksChecker
                         ); 
         global $mainWPLinksCheckerExtensionActivator;
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $_POST['site_id'], 'links_checker', $post_data);			        
+        //print_r($information);
+        if (is_array($information) && isset($information['cnt_okay']) && $information['cnt_okay'] > 0) {
+            $update = $information;
+            $update['site_id'] = $_POST['site_id'];            
+            $this->update_link($update);
+            $information['ui_link_text'] = preg_replace("/src=\".*\/images\/font-awesome\/(.+)/is", 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', $information['ui_link_text']);
+        }
+        
         die(json_encode($information));
     }
+    
+    public function ajax_unlink(){
+        if (!check_ajax_referer('mwp_blc_unlink', false, false)){
+            die( json_encode( array(
+                'error' => __("You're not allowed to do that!") 
+             )));
+        }
+
+        if ( empty($_POST['site_id']) || empty($_POST['link_id']) || !is_numeric($_POST['link_id']) ) {
+            die( json_encode( array(
+                    'error' => __("Error : site_id or link_id not specified")
+            )));
+        }
+
+        $post_data = array('mwp_action' => 'unlink',
+                            'link_id' => $_POST['link_id'],
+                            'new_text' => $_POST['new_text']
+                        ); 
+        global $mainWPLinksCheckerExtensionActivator;
+        
+        $information = apply_filters('mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $_POST['site_id'], 'links_checker', $post_data);			        
+        //print_r($information);
+        if (is_array($information) && isset($information['cnt_okay']) && $information['cnt_okay'] > 0) {
+            $update = array();
+            $update['link_id'] = $_POST['link_id'];
+            $update['site_id'] = $_POST['site_id'];
+            $this->update_unlink($update);
+        }        
+        die(json_encode($information));
+    }
+    
+    
+    public function update_link($update) {
+        if (!isset($update['new_link_id']) || empty($update['new_link_id']) || 
+            !isset($update['site_id']) || empty($update['site_id']))
+            return false;
+        
+        $data = MainWPLinksCheckerDB::Instance()->getLinksCheckerBy('site_id', $update['site_id']);
+        $link_data = unserialize($data->link_data);
+        if (is_array($link_data) && isset($update['link_id']) && $update['link_id']) {
+            $new_link_data = array();
+            foreach($link_data as $link) {                
+                if ($link->link_id == $update['new_link_id']) {
+                    $link->status_code = $update['status_code'];
+                    $link->http_code = $update['http_code'];
+                    $link->url = $update['url'];
+                    $link->link_text = $update['link_text'];                    
+                    $link->data_link_text = $update['ui_link_text'];                    
+                    $link->last_check = 0;
+                    $link->broken = 0;
+                }
+                $new_link_data[] = $link;
+            }
+            $data_update = array('site_id' => $update['site_id'], 
+                            'link_data' => serialize($new_link_data)
+                            );
+            MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
+            return true;   
+        }
+        return false;
+    }
+    
+     public function update_unlink($update) {
+        if (!isset($update['link_id']) || empty($update['link_id']) || 
+            !isset($update['site_id']) || empty($update['site_id']))
+            return false;
+        
+        $data = MainWPLinksCheckerDB::Instance()->getLinksCheckerBy('site_id', $update['site_id']);
+        $link_data = unserialize($data->link_data);
+        if (is_array($link_data) && isset($update['link_id']) && $update['link_id']) {
+            $new_link_data = array();
+            foreach($link_data as $link) {                
+                if ($link->link_id !== $update['link_id']) {
+                    $new_link_data[] = $link;
+                }                
+            }
+            $data_update = array('site_id' => $update['site_id'], 
+                            'link_data' => serialize($new_link_data)
+                            );
+            MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
+            return true;   
+        }
+        return false;
+    }
+    
 
     public static function render() {              
         self::renderTabs();
@@ -298,7 +392,7 @@ class MainWPLinksChecker
                     <th scope="col" id="status" class="manage-column mwp-column-status sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Status','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" id="link-text" class="manage-column mwp-column-link-text sortable desc" style="">
+                    <th scope="col" id="new-link-text" class="manage-column mwp-column-new-link-text sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Link Text','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" id="redirect-url" class="manage-column column-redirect-url sortable desc" style="">
@@ -320,7 +414,7 @@ class MainWPLinksChecker
                     <th scope="col" id="status" class="manage-column mwp-column-status sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Status','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" id="link-text" class="manage-column mwp-column-link-text sortable desc" style="">
+                    <th scope="col" id="new-link-text" class="manage-column mwp-column-new-link-text sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Link Text','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" id="redirect-url" class="manage-column column-redirect-url sortable desc" style="">
@@ -459,11 +553,6 @@ class MainWPLinksChecker
                 continue;
             
             $status = self::analyse_status($link); 	
-            $str_status = sprintf('<span class="http-code">%s</span> <span class="status-text">%s</span>',
-                                            empty($link->http_code)?'':$link->http_code,
-                                            $status['text']
-                                    );
-            //class="blc-row %s" data-days-broken="%d" data-can-edit-url="%d" data-can-edit-text="%d"%s
             $rownum++;
 
             $rowclass = ($rownum % 2)? 'alternate' : '';
@@ -490,9 +579,6 @@ class MainWPLinksChecker
             );
            
             $link_text = preg_replace("/src=\".*\/images\/font-awesome\/(.+)/is", 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', $link->link_text);
-            
-            
-                
 
             ?>              
             <tr valign="top" id="blc-row-<?php echo $link->link_id; ?>-siteid-<?php echo $link->site_id; ?>" class="blc-row link-status-<?php echo $status['code'] ?> <?php echo $rowclass; ?>" <?php echo $rowattr; ?>>
@@ -503,21 +589,9 @@ class MainWPLinksChecker
                     <?php self::column_new_url($link); ?>
                 </td>
                 <td class="status mwp-column-status">
-                    <span><?php echo $str_status ?></span>
-                <?php
-                    //Last checked...
-                    if ( $link->last_check != 0 ){
-                            $last_check = _x('Checked', 'checked how long ago') . ' ';
-                            $last_check .= MainWPLinksCheckerUtility::fuzzy_delta(time() - $link->last_check, 'ago');
-
-                            printf(
-                                    '<br><span class="link-last-checked">%s</span>',
-                                    $last_check
-                            );
-                    }
-                ?>
+                    <?php MainWPLinksChecker::Instance()->column_status($link, $status); ?>
                 </td>
-                <td class="link-text mwp-column-link-text">   
+                <td class="new-link-text mwp-column-new-link-text">   
                     <span><?php echo $link_text; ?></span>
                 </td>
                 <td class="redirect-url column-redirect-url">    
@@ -544,6 +618,52 @@ class MainWPLinksChecker
     TextDomain: broken-link-checker
     */ 
     
+    function column_status($link, $status){
+            printf(
+                    '<table class="mini-status" title="%s">',
+                    esc_attr(__('Show more info about this link', 'broken-link-checker'))
+            );
+
+            //$status = $link->analyse_status();
+
+            printf(
+                    '<tr class="link-status-row link-status-%s">
+                            <td>
+                                    <span class="http-code">%s</span> <span class="status-text">%s</span>
+                            </td>
+                    </tr>',
+                    $status['code'],
+                    empty($link->http_code)?'':$link->http_code,
+                    $status['text']
+            );
+
+            //Last checked...
+            if ( $link->last_check != 0 ){
+                    $last_check = _x('Checked', 'checked how long ago', 'broken-link-checker') . ' ';
+                    $last_check .= MainWPLinksCheckerUtility::fuzzy_delta(time() - $link->last_check, 'ago');
+
+                    printf(
+                            '<tr class="link-last-checked"><td>%s</td></tr>',
+                            $last_check
+                    );
+            }
+
+
+            //Broken for...
+            if ( $link->broken ){
+                    $delta = time() - $link->first_failure;
+                    $broken_for = MainWPLinksCheckerUtility::fuzzy_delta($delta);
+                    printf(
+                            '<tr class="link-broken-for"><td>%s %s</td></tr>',
+                            __('Broken for', 'broken-link-checker'),
+                            $broken_for
+                    );
+            }
+
+            echo '</table>';
+    }
+
+        
     function column_redirect_url($link) {
         if ( $link->redirect_count > 0 ) {
             printf(
@@ -609,7 +729,7 @@ class MainWPLinksChecker
 
             $actions['edit'] = "<span class='edit'><a href='javascript:void(0)' class='mwp-blc-edit-button' title='" . esc_attr( __('Edit this link' ) ) . "'>". __('Edit URL' ) ."</a>";
 
-            $actions['delete'] = "<span class='delete'><a class='submitdelete blc-unlink-button' title='" . esc_attr( __('Remove this link from all posts') ). "' ".
+            $actions['delete'] = "<span class='delete'><a class='submitdelete mwp-blc-unlink-button' title='" . esc_attr( __('Remove this link from all posts') ). "' ".
                             "href='javascript:void(0);'>" . __('Unlink') . "</a>";
 
             if ( $link->broken ){
@@ -654,7 +774,7 @@ class MainWPLinksChecker
                         <td class="blc-colspan-change" colspan="<?php echo $visible_columns; ?>">
                                 <div class="blc-inline-editor-content">
                                         <h4><?php echo _x('Edit Link', 'inline editor title'); ?></h4>
-                                        <div class="mainwp_info-box-red" id="mwp_blc_edit_link_error_box"></div>    
+                                        <div class="mainwp_info-box-red hidden" id="mwp_blc_edit_link_error_box"></div>    
                                         <div class="mainwp_info-box-yellow hidden" id="mwp_blc_edit_link_info_box"></div>    
                                         <label>
                                                 <span class="title"><?php echo _x('Text', 'inline link editor'); ?></span>

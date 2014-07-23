@@ -1,4 +1,5 @@
 <script type='text/javascript'>
+var blc_is_broken_filter = false;
 
 function alterLinkCounter(factor, filterId){
 	var counter;
@@ -102,8 +103,8 @@ jQuery(function($){
 					
 					//Update the elements displaying the number of results for the current filter.
 					if( blc_is_broken_filter ){
-                    	alterLinkCounter(-1);
-                    }
+                                            alterLinkCounter(-1);
+                                        }
 				} else {
 					me.html('<?php echo esc_js(__('Not broken' ));  ?>');
 					alert(data);
@@ -380,13 +381,18 @@ jQuery(function($){
 
 				if (response && (typeof(response['error']) != 'undefined')){
 					//An internal error occurred before the link could be edited.
-                                        if (response.error === 'NOTFOUNDLINK')
-                                            $('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        if (response.error === 'NOTALLOW')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                        else if (response.error === 'UNDEFINEDERROR')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('An unexpected error occured')).show();
+                                        else if (response.error === 'NOTFOUNDLINK')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
                                         else if (response.error === 'URLINVALID') {
-                                            $('#mwp_blc_edit_link_error_box').html(__('The new URL is invalid')).show();
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('The new URL is invalid')).show();
                                         } else {
-                                            $('#mwp_blc_edit_link_error_box').html(response.error).show();
-                                        }                                         
+                                            master.find('#mwp_blc_edit_link_error_box').html(response.error).show();
+                                        }      
+                                        return false;
 				} else if (response.errors && response.errors.length > 0) {
 					//Build and display an error message.
 					var msg = '';
@@ -411,7 +417,8 @@ jQuery(function($){
 					msg = msg + '\n<?php echo esc_js(__("The following error(s) occurred :")); ?>\n* ';
 					msg = msg + response.errors.join('\n* ');
 
-                                        $('#mwp_blc_edit_link_info_box').html(msg).show();
+                                        master.find('#mwp_blc_edit_link_info_box').html(msg).show();
+                                        return false;
 				} else {
 					//Everything went well. Update the link row with the new values.
 
@@ -454,7 +461,7 @@ jQuery(function($){
 					master.removeClass('blc-redirect');
 
 					//Flash the row green to indicate success
-					flashElementGreen(master);
+					flashElementGreen(master);                                               
 				}
 
 				mwp_hideLinkEditor(editRow);
@@ -529,32 +536,41 @@ jQuery(function($){
 
 
     //The "Unlink" button - remove the link/image from all posts, custom fields, etc.
-    $(".blc-unlink-button").click(function () { 
+    $(".mwp-blc-unlink-button").click(function () { 
     	var me = this;
     	var master = $(me).parents('.blc-row');
-        $(me).html('<?php echo esc_js(__('Wait...' )); ?>');
-		
-		//Find the link ID
+        $(me).html('<?php echo esc_js(__('Wait...' )); ?>');		
+        //Find the link ID
     	var link_id = master.attr('id').split('-')[2];
+        var siteId = master.attr('id').split('-')[4];
         
         $.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
-				'action' : 'blc_unlink',
+				'action' : 'mainwp_broken_links_checker_unlink',
 				'link_id' : link_id,
-				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('blc_unlink'));  ?>'
+                                'site_id'  : siteId,
+				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('mwp_blc_unlink'));  ?>'
 			},
 			function (data, textStatus){
 				eval('data = ' + data);
 				 
 				if ( data && (typeof(data['error']) != 'undefined') ){
 					//An internal error occured before the link could be edited.
-					//data.error is an error message.
-					alert(data.error);
+                                        if (response.error === 'NOTALLOW')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                        else if (response.error === 'UNDEFINEDERROR')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('An unexpected error occured')).show();
+                                        else if (response.error === 'NOTFOUNDLINK')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        else {
+                                            master.find('#mwp_blc_edit_link_error_box').html(response.error).show();
+                                        }      
+                                        return false;
 				} else {
-					if ( data.errors.length == 0 ){
+					if ( typeof(data['errors']) === 'undefined' || data.errors.length == 0 ){
 						//The link was successfully removed. Hide its details. 
-						$('#link-details-'+link_id).hide();
+                                                $('#link-details-'+link_id+'-siteid-'+siteId).hide()
 						//Flash the main row green to indicate success, then hide it.
 						var oldColor = master.css('background-color');
 						master.animate({ backgroundColor: "#E0FFB3" }, 200).animate({ backgroundColor: oldColor }, 300, function(){
@@ -564,7 +580,7 @@ jQuery(function($){
 						alterLinkCounter(-1);
 						
 						return;
-					} else {
+					} else if (data.errors && data.errors.length > 0 ) {
 						//Build and display an error message.
 						var msg = '';
 						
@@ -588,7 +604,8 @@ jQuery(function($){
 						msg = msg + data.errors.join('\n* ');
 						
 						//Show the error message
-						alert(msg);
+                                                master.find('#mwp_blc_edit_link_info_box').html(msg).show();
+                                                return false;
 					}				
 				}
 				
