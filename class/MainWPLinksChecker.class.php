@@ -535,13 +535,13 @@ class MainWPLinksChecker
     }
     
     /*
-    Plugin Name: Broken Link Checker
-    Plugin URI: http://w-shadow.com/blog/2007/08/05/broken-link-checker-for-wordpress/
+    PluginName: Broken Link Checker
+    PluginURI: http://w-shadow.com/blog/2007/08/05/broken-link-checker-for-wordpress/
     Description: Checks your blog for broken links and missing images and notifies you on the dashboard if any are found.
     Version: 1.9.2
     Author: Janis Elsts
-    Author URI: http://w-shadow.com/
-    Text Domain: broken-link-checker
+    AuthorURI: http://w-shadow.com/
+    TextDomain: broken-link-checker
     */ 
     
     function column_redirect_url($link) {
