@@ -85,8 +85,7 @@ class MainWPLinksCheckerUtility
                 _n(
                         $templates[$units][$template][0],
                         $templates[$units][$template][1],
-                        $delta,
-                        'broken-link-checker'
+                        $delta
                 ),
                 $delta
         );

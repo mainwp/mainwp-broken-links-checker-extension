@@ -31,6 +31,7 @@ class MainWPLinksChecker
     public function init() {        
         add_action('mainwp-site-synced', array(&$this, 'site_synced'), 10, 1);  
         add_action('mainwp_delete_site', array(&$this, 'mwp_delete_site'), 10, 1);
+        add_action( 'wp_ajax_mainwp_broken_links_checker_edit_link', array($this,'ajax_edit_link') );
     }
     
     public function admin_init() {
@@ -174,6 +175,29 @@ class MainWPLinksChecker
         <?php
     }
     
+    public function ajax_edit_link(){
+        //if (!check_ajax_referer('mwp_blc_edit', false, false)){
+                die( json_encode( array(
+                    'error' => __("You're not allowed to do that!") 
+                 )));
+        //}
+
+        if ( empty($_POST['site_id']) || empty($_POST['link_id']) || empty($_POST['new_url']) || !is_numeric($_POST['link_id']) ) {
+                die( json_encode( array(
+                        'error' => __("Error : site_id, link_id or new_url not specified")
+                )));
+        }
+
+        $post_data = array('mwp_action' => 'edit_link',
+                            'link_id' => $_POST['link_id'],
+                            'new_text' => $_POST['new_text'],
+                            'new_url' => $_POST['new_url']                                        
+                        ); 
+        global $mainWPLinksCheckerExtensionActivator;
+        $information = apply_filters('mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $_POST['site_id'], 'links_checker', $post_data);			        
+        die(json_encode($information));
+    }
+
     public static function render() {              
         self::renderTabs();
     }
@@ -352,43 +376,43 @@ class MainWPLinksChecker
                 <div class="blc-detail-block" style="float: left; width: 49%;">
                 <ol style='list-style-type: none;'>
                 <?php if (!empty($link->post_date) ) { ?>
-                <li><strong><?php _e('Post published on', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Post published on'); ?>:</strong>
                 <span class='post_date'><?php
                                 echo date_i18n(get_option('date_format'),strtotime($link->post_date));
                 ?></span></li>
                 <?php } ?>
                 
-                <li><strong><?php _e('Link last checked', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Link last checked'); ?>:</strong>
                 <span class='check_date'><?php
                                 $last_check = $link->last_check;
                         if ( $last_check < strtotime('-10 years') ){
-                                        _e('Never', 'broken-link-checker');
+                                        _e('Never');
                                 } else {
                                 echo date_i18n(get_option('date_format'), $last_check);
                         }
                 ?></span></li>
 
-                <li><strong><?php _e('HTTP code', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('HTTP code'); ?>:</strong>
                 <span class='http_code'><?php 
                         print $link->http_code; 
                 ?></span></li>
 
-                <li><strong><?php _e('Response time', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Response time'); ?>:</strong>
                 <span class='request_duration'><?php 
-                        printf( __('%2.3f seconds', 'broken-link-checker'), $link->request_duration); 
+                        printf( __('%2.3f seconds'), $link->request_duration); 
                 ?></span></li>
 
-                <li><strong><?php _e('Final URL', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Final URL'); ?>:</strong>
                 <span class='final_url'><?php 
                         print $link->final_url; 
                 ?></span></li>
 
-                <li><strong><?php _e('Redirect count', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Redirect count'); ?>:</strong>
                 <span class='redirect_count'><?php 
                         print $link->redirect_count; 
                 ?></span></li>
 
-                <li><strong><?php _e('Instance count', 'broken-link-checker'); ?>:</strong>
+                <li><strong><?php _e('Instance count'); ?>:</strong>
                 <span class='instance_count'><?php 
                     print $link->count_instance; 
                 ?></span></li>
@@ -397,7 +421,7 @@ class MainWPLinksChecker
                 <li><br/>
                         <?php 
                                 printf(
-                                        _n('This link has failed %d time.', 'This link has failed %d times.', $link->check_count, 'broken-link-checker'),
+                                        _n('This link has failed %d time.', 'This link has failed %d times.', $link->check_count),
                                         $link->check_count
                                 );
 
@@ -405,7 +429,7 @@ class MainWPLinksChecker
 
                                 $delta = time() - $link->first_failure;
                                 printf(
-                                        __('This link has been broken for %s.', 'broken-link-checker'),
+                                        __('This link has been broken for %s.'),
                                         MainWPLinksCheckerUtility::fuzzy_delta($delta)
                                 );
                         ?>
@@ -416,7 +440,7 @@ class MainWPLinksChecker
 
                 <div class="blc-detail-block" style="float: right; width: 50%;">
                 <ol style='list-style-type: none;'>
-                        <li><strong><?php _e('Log', 'broken-link-checker'); ?>:</strong>
+                        <li><strong><?php _e('Log'); ?>:</strong>
                 <span class='blc_log'><?php 
                         print nl2br($link->log); 
                 ?></span></li>
@@ -483,7 +507,7 @@ class MainWPLinksChecker
                 <?php
                     //Last checked...
                     if ( $link->last_check != 0 ){
-                            $last_check = _x('Checked', 'checked how long ago', 'broken-link-checker') . ' ';
+                            $last_check = _x('Checked', 'checked how long ago') . ' ';
                             $last_check .= MainWPLinksCheckerUtility::fuzzy_delta(time() - $link->last_check, 'ago');
 
                             printf(
@@ -583,30 +607,30 @@ class MainWPLinksChecker
             //Output inline action links for the link/URL                  	
             $actions = array();
 
-            $actions['edit'] = "<span class='edit'><a href='javascript:void(0)' class='mwp-blc-edit-button' title='" . esc_attr( __('Edit this link' , 'broken-link-checker') ) . "'>". __('Edit URL' , 'broken-link-checker') ."</a>";
+            $actions['edit'] = "<span class='edit'><a href='javascript:void(0)' class='mwp-blc-edit-button' title='" . esc_attr( __('Edit this link' ) ) . "'>". __('Edit URL' ) ."</a>";
 
-            $actions['delete'] = "<span class='delete'><a class='submitdelete blc-unlink-button' title='" . esc_attr( __('Remove this link from all posts', 'broken-link-checker') ). "' ".
-                            "href='javascript:void(0);'>" . __('Unlink', 'broken-link-checker') . "</a>";
+            $actions['delete'] = "<span class='delete'><a class='submitdelete blc-unlink-button' title='" . esc_attr( __('Remove this link from all posts') ). "' ".
+                            "href='javascript:void(0);'>" . __('Unlink') . "</a>";
 
             if ( $link->broken ){
                     $actions['discard'] = sprintf(
                             '<span><a href="#" title="%s" class="blc-discard-button">%s</a>',
-                            esc_attr(__('Remove this link from the list of broken links and mark it as valid', 'broken-link-checker')),
-                            __('Not broken', 'broken-link-checker')
+                            esc_attr(__('Remove this link from the list of broken links and mark it as valid')),
+                            __('Not broken')
                     );
             }
 
             if ( !$link->dismissed && ($link->broken || ($link->redirect_count > 0)) ) {
                     $actions['dismiss'] = sprintf(
                             '<span><a href="#" title="%s" class="blc-dismiss-button">%s</a>',
-                            esc_attr(__('Hide this link and do not report it again unless its status changes' , 'broken-link-checker')),
-                            __('Dismiss', 'broken-link-checker')
+                            esc_attr(__('Hide this link and do not report it again unless its status changes' )),
+                            __('Dismiss')
                     );
             } else if ( $link->dismissed ) {
                     $actions['undismiss'] = sprintf(
                             '<span><a href="#" title="%s" class="blc-undismiss-button">%s</a>',
-                            esc_attr(__('Undismiss this link', 'broken-link-checker')),
-                            __('Undismiss', 'broken-link-checker')
+                            esc_attr(__('Undismiss this link')),
+                            __('Undismiss')
                     );
             }
 
@@ -616,8 +640,8 @@ class MainWPLinksChecker
 
             ?>
             <div class="mwp-blc-url-editor-buttons">
-                    <input type="button" class="button-secondary cancel alignleft blc-cancel-button" value="<?php echo esc_attr(__('Cancel', 'broken-link-checker')); ?>" />
-                    <input type="button" class="button-primary save alignright blc-update-url-button" value="<?php echo esc_attr(__('Update URL', 'broken-link-checker')); ?>" />
+                    <input type="button" class="button-secondary cancel alignleft mwp-blc-cancel-button" value="<?php echo esc_attr(__('Cancel')); ?>" />
+                    <input type="button" class="button-primary save alignright blc-update-url-button" value="<?php echo esc_attr(__('Update URL')); ?>" />
                     <img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
             </div>
             <?php
@@ -629,28 +653,29 @@ class MainWPLinksChecker
                 <tr id="blc-inline-edit-row" class="blc-inline-editor">
                         <td class="blc-colspan-change" colspan="<?php echo $visible_columns; ?>">
                                 <div class="blc-inline-editor-content">
-                                        <h4><?php echo _x('Edit Link', 'inline editor title', 'broken-link-checker'); ?></h4>
-
+                                        <h4><?php echo _x('Edit Link', 'inline editor title'); ?></h4>
+                                        <div class="mainwp_info-box-red" id="mwp_blc_edit_link_error_box"></div>    
+                                        <div class="mainwp_info-box-yellow hidden" id="mwp_blc_edit_link_info_box"></div>    
                                         <label>
-                                                <span class="title"><?php echo _x('Text', 'inline link editor', 'broken-link-checker'); ?></span>
+                                                <span class="title"><?php echo _x('Text', 'inline link editor'); ?></span>
                                                 <span class="blc-input-text-wrap"><input type="text" name="link_text" value="" class="blc-link-text-field" /></span>
                                         </label>
 
                                         <label>
-                                                <span class="title"><?php echo _x('URL', 'inline link editor', 'broken-link-checker'); ?></span>
+                                                <span class="title"><?php echo _x('URL', 'inline link editor'); ?></span>
                                                 <span class="blc-input-text-wrap"><input type="text" name="link_url" value="" class="blc-link-url-field" /></span>
                                         </label>
 
                                         <div class="blc-url-replacement-suggestions" style="display: none;">
-                                                <h4><?php echo _x('Suggestions', 'inline link editor', 'broken-link-checker'); ?></h4>
+                                                <h4><?php echo _x('Suggestions', 'inline link editor'); ?></h4>
                                                 <ul class="blc-suggestion-list">
                                                         <li>...</li>
                                                 </ul>
                                         </div>
 
                                         <div class="submit blc-inline-editor-buttons">
-                                                <input type="button" class="button-secondary cancel alignleft blc-cancel-button" value="<?php echo esc_attr(__('Cancel', 'broken-link-checker')); ?>" />
-                                                <input type="button" class="button-primary save alignright blc-update-link-button" value="<?php echo esc_attr(__('Update', 'broken-link-checker')); ?>" />
+                                                <input type="button" class="button-secondary cancel alignleft mwp-blc-cancel-button" value="<?php echo esc_attr(__('Cancel')); ?>" />
+                                                <input type="button" class="button-primary save alignright mwp-blc-update-link-button" value="<?php echo esc_attr(__('Update')); ?>" />
 
                                                 <img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
                                                 <div class="clear"></div>
@@ -662,7 +687,7 @@ class MainWPLinksChecker
 
         <ul id="blc-suggestion-template" style="display: none;">
                 <li>
-                        <input type="button" class="button-secondary blc-use-url-button" value="<?php echo esc_attr(__('Use this URL', 'broken-link-checker')); ?>" />
+                        <input type="button" class="button-secondary blc-use-url-button" value="<?php echo esc_attr(__('Use this URL')); ?>" />
 
                         <div class="blc-suggestion-details">
                                 <span class="blc-suggestion-name">
