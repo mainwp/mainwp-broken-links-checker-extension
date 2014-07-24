@@ -169,24 +169,16 @@ class MainWPLinksCheckerDashboard
            $showhide_action = ($website['hide_linkschecker'] == 1) ? 'show' : 'hide';           
            
            $showhide_link = $open_link = $invalid_link = $not_found_mess = "";
-           $broken_link = $redirects_link = $dismissed_link = $all_link = "";
+           $broken_link = $redirects_link = $dismissed_link = $all_link = "";           
+           $link_prefix = "admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&site_id=" . $website_id . "&filter_id=";
            
            if (isset($website['linkschecker_active']) && $website['linkschecker_active']) {
                 $location = "options-general.php?page=link-checker-settings";                   
                 $open_link = ' | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location) . '" target="_blank">' . __("Broken Link Checker Settings") . '</a></span>';
-                
-                $location2 = "tools.php?page=view-broken-links&filter_id=broken";                   
-                $broken_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location2) . '" target="_blank">' . $website['broken'] . '</a></span>';
-                
-                $location3 = "tools.php?page=view-broken-links&filter_id=redirects";                   
-                $redirects_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location3) . '" target="_blank">' . $website['redirects'] . '</a></span>';
-                
-                $location4 = "tools.php?page=view-broken-links&filter_id=dismissed";                   
-                $dismissed_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location4) . '" target="_blank">' . $website['dismissed'] . '</a></span>';
-                
-                $location5 = "tools.php?page=view-broken-links&filter_id=all";                   
-                $all_link = '<span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location5) . '" target="_blank">' . $website['all'] . '</a></span>';
-                
+                $broken_link = '<span class="edit"><a href="' . $link_prefix .'broken" >' . $website['broken'] . '</a></span>';
+                $redirects_link = '<span class="edit"><a href="' . $link_prefix .'redirects" >' . $website['redirects'] . '</a></span>';
+                $dismissed_link = '<span class="edit"><a href="' . $link_prefix .'dismissed">' . $website['dismissed'] . '</a></span>';
+                $all_link = '<span class="edit"><a href="' . $link_prefix .'all">' . $website['all'] . '</a></span>';
                 $showhide_link = ' | <a href="#" class="linkschecker_showhide_plugin" showhide="' . $showhide_action . '">'. ($showhide_action === "show" ? __('Show Broken Link Checker Plugin') : __('Hide Broken Link Checker Plugin')) . '</a>';
            }
            

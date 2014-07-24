@@ -144,6 +144,20 @@ PRIMARY KEY  (`id`)  ';
         return $data;
     }
     
+    public function getLinksData($fields, $site_id = null) {
+        if (!is_array($fields))
+            return false;     
+        global $wpdb;
+        $_select = implode(",", $fields);    
+        if (empty($site_id)) {
+            $sql = "SELECT $_select FROM " . $this->tableName('linkschecker') . " WHERE active = 1";
+            return $wpdb->get_results($sql);        
+        } else {
+            $sql = "SELECT $_select FROM " . $this->tableName('linkschecker') . " WHERE active = 1 AND `site_id` = " . intval($site_id);
+            return $wpdb->get_row($sql);        
+        }
+    }
+    
     protected function escape($data)
     {
         /** @var $wpdb wpdb */

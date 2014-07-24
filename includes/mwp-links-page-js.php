@@ -1,5 +1,6 @@
 <script type='text/javascript'>
 var blc_is_broken_filter = false;
+var blc_current_base_filter = 'all';
 
 function alterLinkCounter(factor, filterId){
 	var counter;
@@ -64,23 +65,25 @@ jQuery(function($){
     var ajaxInProgressHtml = '<?php echo esc_js(__('Wait...')); ?>';
 	
 	//The "Not broken" button - manually mark the link as valid. The link will be checked again later.
-	$(".blc-discard-button").click(function () {
+	$(".mwp-blc-discard-button").click(function () {
 		var me = $(this);
 		me.html(ajaxInProgressHtml);
 		
 		var master = me.parents('.blc-row');
-    	var link_id = master.attr('id').split('-')[2];
-        
-        $.post(
+                var link_id = master.attr('id').split('-')[2];
+                var site_id = master.attr('id').split('-')[4];
+
+                $.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
-				'action' : 'blc_discard',
+				'action' : 'mainwp_broken_links_checker_discard',
 				'link_id' : link_id,
-				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('blc_discard'));  ?>'
+                                'site_id' : site_id,
+				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('mwp_blc_discard'));  ?>'
 			},
 			function (data, textStatus){
-				if (data == 'OK'){
-					var details = $('#link-details-'+link_id);
+				if (data && data['status'] == 'OK'){
+					var details = $('#link-details-'+link_id + '-siteid-' + site_id);
 					
 					//Remove the "Not broken" action
 					me.parent().remove();
@@ -107,34 +110,48 @@ jQuery(function($){
                                         }
 				} else {
 					me.html('<?php echo esc_js(__('Not broken' ));  ?>');
-					alert(data);
+					//An internal error occured before the link could be edited.
+                                        if (data.error === 'NOTALLOW')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                        else if (data.error === 'COULDNOTMODIFY')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                        else if (data.error === 'NOTFOUNDLINK')
+                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        else {
+                                            master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
+                                        }      
+                                        return false;
 				}
-			}
+			},
+			'json'
 		);
 		
 		return false;
     });
 
 	//The "Dismiss" button - hide the link from the "Broken" and "Redirects" filters, but still apply link tweaks and so on.
-	$(".blc-dismiss-button").click(function () {
+	$(".mwp-blc-dismiss-button").click(function () {
 		var me = $(this);
 		var oldButtonHtml = me.html();
 		me.html(ajaxInProgressHtml);
 
 		var master = me.closest('.blc-row');
 		var link_id = master.attr('id').split('-')[2];
+                var site_id = master.attr('id').split('-')[4];
+                
 		var should_hide_link = (blc_current_base_filter == 'broken') || (blc_current_base_filter == 'redirects');
 
 		$.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
-				'action' : 'blc_dismiss',
+				'action' : 'mainwp_broken_links_checker_dismiss',
 				'link_id' : link_id,
-				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('blc_dismiss'));  ?>'
+                                'site_id' : site_id,
+				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('mwp_blc_dismiss'));  ?>'
 			},
 			function (data, textStatus){
-				if (data == 'OK'){
-					var details = $('#link-details-'+link_id);
+                                if (data == 'OK'){
+					var details = $('#link-details-'+link_id+'-siteid-' + site_id);
 
 					//Remove the "Dismiss" action
 					me.parent().hide();
@@ -152,11 +169,22 @@ jQuery(function($){
 						alterLinkCounter(-1);
 						alterLinkCounter(1, 'dismissed');
 					}
-				} else {
-					me.html(oldButtonHtml);
-					alert(data);
+				} else if ( data && (typeof(data['error']) != 'undefined') ){
+                                    //An internal error occured before the link could be edited.
+                                    if (data.error === 'NOTALLOW')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                    else if (data.error === 'COULDNOTMODIFY')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                    else if (data.error === 'NOTFOUNDLINK')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                    else {
+                                        master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
+                                    }      
+                                    me.html(oldButtonHtml);
+                                    return false;
 				}
-			}
+			},
+			'json'
 		);
 
 		return false;
@@ -170,18 +198,20 @@ jQuery(function($){
 
 		var master = me.closest('.blc-row');
 		var link_id = master.attr('id').split('-')[2];
+                var site_id = master.attr('id').split('-')[4];
 		var should_hide_link = (blc_current_base_filter == 'dismissed');
 
 		$.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
-				'action' : 'blc_undismiss',
+				'action' : 'mainwp_broken_links_checker_undismiss',                                
 				'link_id' : link_id,
-				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('blc_undismiss'));  ?>'
+                                'site_id' : site_id,
+				'_ajax_nonce' : '<?php echo esc_js(wp_create_nonce('mwp_blc_undismiss'));  ?>'
 			},
 			function (data, textStatus){
 				if (data == 'OK'){
-					var details = $('#link-details-'+link_id);
+					var details = $('#link-details-' + link_id + '-siteid-' + site_id);
 
 					//Remove the action.
 					me.parent().hide();
@@ -198,11 +228,22 @@ jQuery(function($){
 					if( should_hide_link ){
 						alterLinkCounter(-1);
 					}
-				} else {
-					me.html(oldButtonHtml);
-					alert(data);
+				} else if ( data && (typeof(data['error']) != 'undefined') ){
+                                    //An internal error occured before the link could be edited.
+                                    if (data.error === 'NOTALLOW')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                    else if (data.error === 'COULDNOTMODIFY')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                    else if (data.error === 'NOTFOUNDLINK')
+                                        master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                    else {
+                                        master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
+                                    }      
+                                    me.html(oldButtonHtml);
+                                    return false;
 				}
-			}
+			},
+			'json'
 		);
 
 		return false;
