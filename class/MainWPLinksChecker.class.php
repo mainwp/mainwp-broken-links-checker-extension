@@ -512,11 +512,12 @@ class MainWPLinksChecker
     }
     
     static function gen_broken_links_tab($websites, $site_id = "", $filter = "all") {
-        $all_links = array();    
+        $all_links = $sites_url = array();    
         $link_info = "";
         foreach($websites as $website) {
             if (($site_id && $site_id == $website['id']) || empty($site_id)) {
-                $link_data = $website['link_data'];            
+                $link_data = $website['link_data'];   
+                $sites_url[$website['id']] = $website['url'];
                 if (is_array($link_data) && !empty($link_data[0])) { 
                     if (empty($filter) || $filter == "all") {
                         $all_links = array_merge($all_links, $link_data);
@@ -546,16 +547,17 @@ class MainWPLinksChecker
      
         ?>
         <div id="mainwp_blc_links_content">
-            <?php MainWPLinksChecker::Instance()->print_filter_menu($filter, $site_id); ?>
+            
             
             <div class="tablenav top">
-<!--                <div class="alignleft">
-                    <select name="bulk_action" id="mainwp_bulk_action">
+                <div class="alignleft">
+                    <?php MainWPLinksChecker::Instance()->print_filter_menu($filter, $site_id); ?>
+<!--                    <select name="bulk_action" id="mainwp_bulk_action">
                         <option value="none"><?php _e('Bulk Action','mainwp'); ?></option>
                         <option value="publish"><?php _e('Publish','mainwp'); ?></option>
                         <option value="delete"><?php _e('Delete','mainwp'); ?></option>
-                    </select> <input type="button" name="" id="mainwp_broken_links_checker_apply" class="button" value="<?php _e('Apply','mainwp'); ?>"/>
-                </div>-->
+                    </select> <input type="button" name="" id="mainwp_broken_links_checker_apply" class="button" value="<?php _e('Apply','mainwp'); ?>"/>-->
+                </div>
                 <div class="alignright">
 <!--                <?php _e('Total Results:','mainwp'); ?> <span id="mainwp_article_uploader_total"><?php echo count($all_links); ?></span>-->
                     <input type="button" style="background-image: none!important; float:right; padding-left: .6em !important;" id="dashboard_refresh" value="<?php _e("Sync Data", 'mainwp'); ?>" class="mainwp-upgrade-button button-primary button">
@@ -608,25 +610,27 @@ class MainWPLinksChecker
                 </tfoot> 
                 <tbody class="list:posts">
                 <?php 
-                    self::renderTableLinksContent($all_links);
+                    self::renderTableLinksContent($all_links, $sites_url);
                 ?>
                 </tbody>
             </table>
-            <div class="pager" id="pager">
-                <form>
-                    <?php do_action('mainwp_renderImage', 'images/first.png', 'First', 'first'); ?>
-                    <?php do_action('mainwp_renderImage', 'images/prev.png', 'Previous', 'prev'); ?>
-                    <input type="text" class="pagedisplay" />
-                    <?php do_action('mainwp_renderImage', 'images/next.png', 'Next', 'next'); ?>
-                    <?php do_action('mainwp_renderImage', 'images/last.png', 'Last', 'last'); ?>
-                    <span>&nbsp;&nbsp;<?php _e('Show:','mainwp'); ?> </span><select class="pagesize">
-                        <option selected="selected" value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                        <option value="1000000000">All</option>
-                    </select><span> <?php _e('Articles per page','mainwp'); ?></span>
-                </form>
+            <div class="tablenav bottom">
+                <div class="pager" id="pager">
+                    <form>
+                        <?php do_action('mainwp_renderImage', 'images/first.png', 'First', 'first'); ?>
+                        <?php do_action('mainwp_renderImage', 'images/prev.png', 'Previous', 'prev'); ?>
+                        <input type="text" class="pagedisplay" />
+                        <?php do_action('mainwp_renderImage', 'images/next.png', 'Next', 'next'); ?>
+                        <?php do_action('mainwp_renderImage', 'images/last.png', 'Last', 'last'); ?>
+                        <span>&nbsp;&nbsp;<?php _e('Show:','mainwp'); ?> </span><select class="pagesize">
+                            <option selected="selected" value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="1000000000">All</option>
+                        </select><span> <?php _e('Articles per page','mainwp'); ?></span>
+                    </form>
+                </div>
             </div>
             <div class="clear"></div>
         </div>
@@ -785,7 +789,7 @@ class MainWPLinksChecker
         <?php
     }
         
-    static function renderTableLinksContent($links) {
+    static function renderTableLinksContent($links, $sites_url) {
         $rownum = 0;
         foreach($links as $link) { 
             if (empty($link->link_id))
@@ -839,6 +843,12 @@ class MainWPLinksChecker
                     ?>
                 </td>                
                 <td class="source column-source">                  
+                    <?php                         
+                        $website_data = new stdClass();
+                        $website_data->id = $link->site_id; 
+                        $website_data->url = $sites_url[$link->site_id];
+                        MainWPLinksChecker::Instance()->column_source($link, $website_data); 
+                    ?>
                 </td>                
             </tr>
     <?php 
@@ -1005,7 +1015,103 @@ class MainWPLinksChecker
             </div>
             <?php
     }
-
+    
+    function column_source($link, $website) {       
+        if (is_array($link->source_data)) {
+            
+            
+            if ($link->container_type == 'comment') {                
+                $image = "";
+                if (isset($link->source_data['image'])) {
+                    $image = sprintf(
+                            '<img src="%s/images/%s" class="blc-small-image" title="%3$s" alt="%3$s"> ',
+                            MWP_BROKEN_LINKS_CHECKER_URL,
+                            $link->source_data['image'],
+                            __('Comment', 'mainwp')
+                    );
+                }
+                $html = "";
+                if (isset($link->source_data['text_sample'])) {                    
+                    $edit_href = 'admin.php?page=SiteOpen&websiteid=' . $website->id . '&location=' . base64_encode('comment.php?action=editcomment&c=' . $link->source_data['comment_id']);
+                    $html = sprintf(
+                            '<a href="%s" title="%s"><b>%s</b> &mdash; %s</a>',
+                            $edit_href,
+                            esc_attr__('Edit comment'),
+                            $link->source_data['comment_author'],
+                            $link->source_data['text_sample']		
+                    );
+                }
+                echo $image . $html;
+                
+                if ($link->source_data['comment_id'] && ($link->source_data['comment_status'] != 'trash') && ($link->source_data['comment_status'] != 'spam')) { ?>
+                       <span class="edit">
+                           <a href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('comment.php?action=editcomment&c=' . $link->source_data['comment_id']); ?>"
+                              title="Edit this item"><?php _e('Edit','mainwp'); ?></a>
+                       </span>   
+                       <?php 
+                        $per_link = $website->url . (substr($website->url, -1) != '/' ? '/' : '') . '?p=' . $link->source_data['container_post_ID'];
+                        if ( in_array($link->source_data['container_post_status'], array('pending', 'draft')) ) {
+                            printf(
+                                    '<span class="view">| <a href="%s" title="%s" rel="permalink">%s</a>',
+                                    esc_url( add_query_arg( 'preview', 'true', $per_link )),
+                                    esc_attr(sprintf(__('Preview &#8220;%s&#8221;'), $link->source_data['container_post_title'])),
+                                    __('Preview Post')
+                            );
+                        } elseif ( 'trash' != $link->source_data['container_post_status'] ) {
+                            printf(
+                                    '<span class="view">| <a href="%s" title="%s" rel="permalink" target="_blank">%s</a></span>',
+                                    $per_link,
+                                    esc_attr(sprintf(__('View &#8220;%s&#8221;'), $link->source_data['container_post_title'])),
+                                    __('View Post')
+                            );
+                        }                            
+                }
+            } else {
+                 if (isset($link->source_data['container_anypost']) && $link->source_data['container_anypost']) {                     
+                        $edit_href = 'admin.php?page=SiteOpen&websiteid=' . $website->id . '&location=' . base64_encode('post.php?post=' .$link->container_id . '&action=edit');
+                        $source = sprintf(
+                                '<a class="row-title" href="%s" title="%s">%s</a>',
+                                $edit_href,
+                                esc_attr(__('Edit this item')),
+                                $link->source_data['post_title']
+                        );
+                        echo $source;
+                         ?>
+                        <div class="row_actions">
+                            <?php if ($link->source_data['post_status'] != 'trash') { ?>
+                            <span class="edit"><a
+                                    href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('post.php?post=' .$link->container_id . '&action=edit'); ?>"
+                                    title="Edit this item"><?php _e('Edit','mainwp'); ?></a></span>
+<!--                            <span class="trash">
+                                | <a class="post_submitdelete" title="Move this item to the Trash" href="#"><?php _e('Trash','mainwp'); ?></a>
+                            </span>-->
+                            <?php } ?>
+                            
+                            <?php
+                            $per_link = $website->url . (substr($website->url, -1) != '/' ? '/' : '') . '?p=' . $link->container_id;
+                            if ( in_array($link->source_data['post_status'], array('pending', 'draft')) ) {
+                                printf(
+                                        '<span class="view">| <a href="%s" title="%s" rel="permalink">%s</a>',
+                                        esc_url( add_query_arg( 'preview', 'true', $per_link )),
+                                        esc_attr(sprintf(__('Preview &#8220;%s&#8221;'), $link->source_data['post_title'])),
+                                        __('Preview')
+                                );
+                            } elseif ( 'trash' != $link->source_data['post_status'] ) {
+                                printf(
+                                        '<span class="view">| <a href="%s" title="%s" rel="permalink" target="_blank">%s</a></span>',
+                                        $per_link,
+                                        esc_attr(sprintf(__('View &#8220;%s&#8221;'), $link->source_data['post_title'])),
+                                        __('View')
+                                );
+                            }
+                            ?>
+                        </div>
+                        <?php
+                 }
+            } 
+        }
+    }
+    
     protected function inline_editor($visible_columns = 6) {
         ?>
         <table style="display: none;"><tbody>
