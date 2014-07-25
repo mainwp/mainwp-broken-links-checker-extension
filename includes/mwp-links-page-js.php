@@ -72,7 +72,9 @@ jQuery(function($){
 		var master = me.parents('.blc-row');
                 var link_id = master.attr('id').split('-')[2];
                 var site_id = master.attr('id').split('-')[4];
-
+                var statusEl = master.find('td.column-title .working-status');
+                statusEl.hide();
+                
                 $.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
@@ -112,13 +114,13 @@ jQuery(function($){
 					me.html('<?php echo esc_js(__('Not broken' ));  ?>');
 					//An internal error occured before the link could be edited.
                                         if (data.error === 'NOTALLOW')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                            statusEl.html(__('You\'re not allowed to do that')).show();
                                         else if (data.error === 'COULDNOTMODIFY')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                            statusEl.html(__('Couldn\'t modify the link')).show();
                                         else if (data.error === 'NOTFOUNDLINK')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                            statusEl.html(__('Can\'t find the link')).show();
                                         else {
-                                            master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
+                                            statusEl.html(data.error).show();
                                         }      
                                         return false;
 				}
@@ -140,7 +142,9 @@ jQuery(function($){
                 var site_id = master.attr('id').split('-')[4];
                 
 		var should_hide_link = (blc_current_base_filter == 'broken') || (blc_current_base_filter == 'redirects');
-
+                var statusEl = master.find('td.column-title .working-status');
+                statusEl.hide();
+        
 		$.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
@@ -172,14 +176,15 @@ jQuery(function($){
 				} else if ( data && (typeof(data['error']) != 'undefined') ){
                                     //An internal error occured before the link could be edited.
                                     if (data.error === 'NOTALLOW')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                        statusEl.html(__('You\'re not allowed to do that')).show();
                                     else if (data.error === 'COULDNOTMODIFY')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                        statusEl.html(__('Couldn\'t modify the link')).show();
                                     else if (data.error === 'NOTFOUNDLINK')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        statusEl.html(__('Can\'t find the link')).show();
                                     else {
-                                        master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
-                                    }      
+                                        statusEl.html(data.error).show();
+                                    }    
+                                    statusEl.css('color', 'red');
                                     me.html(oldButtonHtml);
                                     return false;
 				}
@@ -200,7 +205,9 @@ jQuery(function($){
 		var link_id = master.attr('id').split('-')[2];
                 var site_id = master.attr('id').split('-')[4];
 		var should_hide_link = (blc_current_base_filter == 'dismissed');
-
+                var statusEl = master.find('td.column-title .working-status');
+                statusEl.hide();
+        
 		$.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
 			{
@@ -231,14 +238,15 @@ jQuery(function($){
 				} else if ( data && (typeof(data['error']) != 'undefined') ){
                                     //An internal error occured before the link could be edited.
                                     if (data.error === 'NOTALLOW')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                        statusEl.html(__('You\'re not allowed to do that')).show();
                                     else if (data.error === 'COULDNOTMODIFY')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('Couldn\'t modify the link')).show();
+                                        statusEl.html(__('Couldn\'t modify the link')).show();
                                     else if (data.error === 'NOTFOUNDLINK')
-                                        master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        statusEl.html(__('Can\'t find the link')).show();
                                     else {
-                                        master.find('#mwp_blc_edit_link_error_box').html(data.error).show();
-                                    }      
+                                        statusEl.html(data.error).show();
+                                    }     
+                                    statusEl.css('color', 'red');
                                     me.html(oldButtonHtml);
                                     return false;
 				}
@@ -248,6 +256,87 @@ jQuery(function($){
 
 		return false;
 	});
+
+
+        jQuery('.blc_comment_submitdelete').live('click', function () {
+            var master = jQuery(this).parents('.blc-row');
+            var commentId = master.find('.source_column_data').data('comment_id');
+            var siteIdEN = master.find('.source_column_data').data('site_id_encode');
+            var link_id = master.attr('id').split('-')[2];
+            var site_id = master.attr('id').split('-')[4];            	
+            var me = $(this);
+            var oldButtonHtml = me.html();
+            me.html(ajaxInProgressHtml);
+            var statusEl = master.find('td.column-source .working-status');
+            statusEl.hide();
+                
+            var data = {
+                'action': 'mainwp_broken_links_checker_comment_trash',
+                commentId: commentId,
+                websiteId: siteIdEN,
+                _ajax_nonce : '<?php echo esc_js(wp_create_nonce('mwp_blc_trash_comment'));  ?>'
+            };
+        
+            jQuery.post(ajaxurl, data, function (response) {
+                if (response.result) {                    
+                    $('#link-details-'+link_id+'-siteid-'+site_id).hide();
+                    //Flash the main row green to indicate success, then hide it.
+                    var oldColor = master.css('background-color');
+                    master.animate({ backgroundColor: "#E0FFB3" }, 200).animate({ backgroundColor: oldColor }, 300, function(){
+                            master.hide();
+                    });
+
+                    alterLinkCounter(-1);
+                    return;
+                } else if (response.error) {
+                    statusEl.html(response.error).show();                                     
+                    statusEl.css('color', 'red');
+                }
+                me.html(oldButtonHtml);                                    
+            }, 'json');
+
+            return false;
+        });  
+        
+        jQuery('.blc_post_submitdelete').live('click', function () {
+            var master = jQuery(this).parents('.blc-row');
+            var postId = master.find('.source_column_data').data('post_id');            
+            var link_id = master.attr('id').split('-')[2];
+            var site_id = master.attr('id').split('-')[4];            	
+            var me = $(this);
+            var oldButtonHtml = me.html();
+            me.html(ajaxInProgressHtml);
+            var statusEl = master.find('td.column-source .working-status');
+            statusEl.hide();
+       
+            var data = {
+                'action': 'mainwp_broken_links_checker_post_trash',
+                postId: postId,
+                websiteId: site_id,
+                _ajax_nonce : '<?php echo esc_js(wp_create_nonce('mwp_blc_trash_post'));  ?>'
+            };
+        
+            jQuery.post(ajaxurl, data, function (response) {
+                if (response.result) {                    
+                    $('#link-details-'+link_id+'-siteid-'+site_id).hide();
+                    //Flash the main row green to indicate success, then hide it.
+                    var oldColor = master.css('background-color');
+                    master.animate({ backgroundColor: "#E0FFB3" }, 200).animate({ backgroundColor: oldColor }, 300, function(){
+                            master.hide();
+                    });
+
+                    alterLinkCounter(-1);
+                    return;
+                } else if (response.error) {
+                    statusEl.html(response.error).show();                                     
+                    statusEl.css('color', 'red');
+                }
+                me.html(oldButtonHtml);                                    
+            }, 'json');
+
+            return false;
+        });  
+        
 
 	function flashElementGreen(element, callback) {
 		var oldColor = element.css('background-color');
@@ -584,6 +673,8 @@ jQuery(function($){
         //Find the link ID
     	var link_id = master.attr('id').split('-')[2];
         var siteId = master.attr('id').split('-')[4];
+        var statusEl = master.find('td.column-title .working-status');
+        statusEl.hide();
         
         $.post(
 			"<?php echo admin_url('admin-ajax.php'); ?>",
@@ -598,16 +689,16 @@ jQuery(function($){
 				 
 				if ( data && (typeof(data['error']) != 'undefined') ){
 					//An internal error occured before the link could be edited.
-                                        if (response.error === 'NOTALLOW')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
-                                        else if (response.error === 'UNDEFINEDERROR')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('An unexpected error occured')).show();
-                                        else if (response.error === 'NOTFOUNDLINK')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                        if (data.error === 'NOTALLOW')
+                                            statusEl.html(__('You\'re not allowed to do that')).show();
+                                        else if (data.error === 'UNDEFINEDERROR')
+                                            statusEl.html(__('An unexpected error occured')).show();
+                                        else if (data.error === 'NOTFOUNDLINK')
+                                            statusEl.html(__('Can\'t find the link')).show();
                                         else {
-                                            master.find('#mwp_blc_edit_link_error_box').html(response.error).show();
-                                        }      
-                                        return false;
+                                            statusEl.html(data.error).show();
+                                        }
+                                        statusEl.css('color', 'red');                                        
 				} else {
 					if ( typeof(data['errors']) === 'undefined' || data.errors.length == 0 ){
 						//The link was successfully removed. Hide its details. 
@@ -645,8 +736,8 @@ jQuery(function($){
 						msg = msg + data.errors.join('\n* ');
 						
 						//Show the error message
-                                                master.find('#mwp_blc_edit_link_info_box').html(msg).show();
-                                                return false;
+                                                statusEl.html(msg).show();
+                                                statusEl.css('color', 'red');                                                
 					}				
 				}
 				

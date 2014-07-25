@@ -51,6 +51,8 @@ class MainWPLinksChecker
         add_action( 'wp_ajax_mainwp_broken_links_checker_dismiss', array($this,'ajax_dismiss') );
         add_action( 'wp_ajax_mainwp_broken_links_checker_undismiss', array($this,'ajax_undismiss') );
         add_action( 'wp_ajax_mainwp_broken_links_checker_discard', array($this,'ajax_discard') );
+        add_action( 'wp_ajax_mainwp_broken_links_checker_comment_trash', array($this,'ajax_comment_trash') );
+        add_action( 'wp_ajax_mainwp_broken_links_checker_post_trash', array($this,'ajax_post_trash') );        
     }
     
     public function admin_init() {
@@ -114,6 +116,29 @@ class MainWPLinksChecker
         } else {
             self::network_metabox();
         }
+    }
+    
+    function ajax_comment_trash()
+    {
+        if (!check_ajax_referer('mwp_blc_trash_comment', false, false)){
+            die( json_encode( array(
+                 'error' => __("You're not allowed to do that!") 
+             )));
+        }
+
+        MainWPRecentComments::trash();
+        die();
+    }
+    
+    function ajax_post_trash()
+    {
+        if (!check_ajax_referer('mwp_blc_trash_post', false, false)){
+            die( json_encode( array(
+                 'error' => __("You're not allowed to do that!") 
+             )));
+        }
+         MainWPRecentPosts::trash();
+        die();
     }
     
     public static function network_metabox() {
@@ -1006,6 +1031,7 @@ class MainWPLinksChecker
             echo '<div class="row-actions">';
             echo implode(' | </span>', $actions) .'</span>';
             echo '</div>';
+            echo '<div class="working-status hidden"></div>';  
 
             ?>
             <div class="mwp-blc-url-editor-buttons">
@@ -1018,8 +1044,6 @@ class MainWPLinksChecker
     
     function column_source($link, $website) {       
         if (is_array($link->source_data)) {
-            
-            
             if ($link->container_type == 'comment') {                
                 $image = "";
                 if (isset($link->source_data['image'])) {
@@ -1041,13 +1065,17 @@ class MainWPLinksChecker
                             $link->source_data['text_sample']		
                     );
                 }
-                echo $image . $html;
-                
+                echo $image . $html;                
                 if ($link->source_data['comment_id'] && ($link->source_data['comment_status'] != 'trash') && ($link->source_data['comment_status'] != 'spam')) { ?>
+                     <span class="hidden source_column_data" data-comment_id="<?php echo $link->source_data['comment_id']; ?>" ></span>
+                    <div class="row_actions">
                        <span class="edit">
                            <a href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('comment.php?action=editcomment&c=' . $link->source_data['comment_id']); ?>"
                               title="Edit this item"><?php _e('Edit','mainwp'); ?></a>
-                       </span>   
+                       </span>
+                        <span class="trash">
+                            | <a class="blc_comment_submitdelete" title="<?php _e("Move this item to the Trash", "mainwp"); ?>" href="#"><?php _e('Trash','mainwp'); ?></a>
+                        </span>
                        <?php 
                         $per_link = $website->url . (substr($website->url, -1) != '/' ? '/' : '') . '?p=' . $link->source_data['container_post_ID'];
                         if ( in_array($link->source_data['container_post_status'], array('pending', 'draft')) ) {
@@ -1064,7 +1092,10 @@ class MainWPLinksChecker
                                     esc_attr(sprintf(__('View &#8220;%s&#8221;'), $link->source_data['container_post_title'])),
                                     __('View Post')
                             );
-                        }                            
+                        } 
+                        ?>
+                    </div> 
+                    <?php
                 }
             } else {
                  if (isset($link->source_data['container_anypost']) && $link->source_data['container_anypost']) {                     
@@ -1077,14 +1108,15 @@ class MainWPLinksChecker
                         );
                         echo $source;
                          ?>
+                        <span class="hidden source_column_data" data-post_id="<?php echo $link->container_id; ?>" ></span>
                         <div class="row_actions">
                             <?php if ($link->source_data['post_status'] != 'trash') { ?>
                             <span class="edit"><a
                                     href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('post.php?post=' .$link->container_id . '&action=edit'); ?>"
                                     title="Edit this item"><?php _e('Edit','mainwp'); ?></a></span>
-<!--                            <span class="trash">
-                                | <a class="post_submitdelete" title="Move this item to the Trash" href="#"><?php _e('Trash','mainwp'); ?></a>
-                            </span>-->
+                            <span class="trash">
+                                | <a class="blc_post_submitdelete" title="<?php _e("Move this item to the Trash", "mainwp"); ?>" href="#"><?php _e('Trash','mainwp'); ?></a>
+                            </span>
                             <?php } ?>
                             
                             <?php
@@ -1108,7 +1140,10 @@ class MainWPLinksChecker
                         </div>
                         <?php
                  }
-            } 
+            }
+            ?>            
+            <div class="working-status hidden"></div> 
+            <?php
         }
     }
     
