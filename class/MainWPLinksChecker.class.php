@@ -35,19 +35,32 @@ class MainWPLinksChecker
         }
         
         if (get_option('mainwp_blc_refresh_total_link_info') == 1) {
-            $link_info_values = MainWPLinksCheckerDB::Instance()->getLinksData(array('link_info'));
+            global $mainWPLinksCheckerExtensionActivator;
+            $websites = apply_filters('mainwp-getsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), null);
+            $all_sites = array();
+            if (is_array($websites)) {
+                foreach ($websites as $website) {
+                    $all_sites[] = $website['id'];
+                }
+            }
+                    
+            $link_values = MainWPLinksCheckerDB::Instance()->getLinksData(array('link_info', 'site_id'));
             $total = array();
-            if (is_array($link_info_values)) {
-                foreach($link_info_values as $value) {
-                    $data = unserialize($value->link_info);                    
-                    $total['broken'] += isset($data['broken']) ? intval($data['broken']) : 0;
-                    $total['redirects'] += isset($data['redirects']) ? intval($data['redirects']) : 0;
-                    $total['dismissed'] += isset($data['dismissed']) ? intval($data['dismissed']) : 0;
-                    $total['all'] += isset($data['all']) ? intval($data['all']) : 0;            
+            if (is_array($link_values)) {
+                foreach($link_values as $value) {
+                    if (in_array($value->site_id, $all_sites)) {
+                        $data = unserialize($value->link_info);                    
+                        $total['broken'] += isset($data['broken']) ? intval($data['broken']) : 0;
+                        $total['redirects'] += isset($data['redirects']) ? intval($data['redirects']) : 0;
+                        $total['dismissed'] += isset($data['dismissed']) ? intval($data['dismissed']) : 0;
+                        $total['all'] += isset($data['all']) ? intval($data['all']) : 0;            
+                    } else {
+                        MainWPLinksCheckerDB::Instance()->deleteLinksChecker('site_id', $value->site_id);
+                    }                        
                 }
             }
             $this->set_option('total_link_info', $total);
-            update_option('mainwp_blc_refresh_total_link_info', '');
+            update_option('mainwp_blc_refresh_total_link_info', '');            
         }        
         $this->option = get_option($this->option_handle);
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);                
