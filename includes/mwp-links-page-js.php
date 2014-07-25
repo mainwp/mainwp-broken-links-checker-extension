@@ -1,6 +1,7 @@
 <script type='text/javascript'>
-var blc_is_broken_filter = false;
-var blc_current_base_filter = 'all';
+var blc_is_broken_filter = <?php echo isset($_GET['filter_id']) && $_GET['filter_id'] == 'broken' ? 'true' : 'false'; ?>;
+var blc_current_base_filter = '<?php echo isset($_GET['filter_id']) && !empty($_GET['filter_id']) ? $_GET['filter_id'] : 'all'; ?>';
+var blc_current_base_site_id = '<?php echo isset($_GET['site_id']) && !empty($_GET['site_id']) ? $_GET['site_id'] : ''; ?>';
 
 function alterLinkCounter(factor, filterId){
 	var counter;
@@ -287,6 +288,9 @@ jQuery(function($){
                     });
 
                     alterLinkCounter(-1);
+                    setTimeout(function() {
+                        location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=all&trashed_comment_id=' + commentId + '&trashed_site_id=' + site_id;
+                    }, 200);
                     return;
                 } else if (response.error) {
                     statusEl.html(response.error).show();                                     
@@ -326,6 +330,10 @@ jQuery(function($){
                     });
 
                     alterLinkCounter(-1);
+                    setTimeout(function() {
+                        location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=all&trashed_post_id=' + postId + '&trashed_site_id=' + site_id;
+                    }, 200);
+                    
                     return;
                 } else if (response.error) {
                     statusEl.html(response.error).show();                                     

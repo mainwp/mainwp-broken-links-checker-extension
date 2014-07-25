@@ -23,8 +23,18 @@ class MainWPLinksChecker
         return MainWPLinksChecker::$instance;
     }
 
-    public function __construct() {        
-        if (get_option('mainwp_blc_refresh_total_link_info') == 'yes') {
+    public function __construct() {         
+        if (isset($_GET['page']) && $_GET['page'] == 'Extensions-Mainwp-Broken-Links-Checker-Extension') {
+            if (isset($_GET['trashed_site_id']) && $_GET['trashed_site_id'] ) {
+                if (isset($_GET['trashed_post_id']) && $_GET['trashed_post_id'])
+                    $this->trashed_container($_GET['trashed_post_id'], $_GET['trashed_site_id'], true);
+                else if (isset($_GET['trashed_comment_id']) && $_GET['trashed_comment_id']) {
+                    $this->trashed_container($_GET['trashed_comment_id'], $_GET['trashed_site_id']);
+                }
+            }
+        }
+        
+        if (get_option('mainwp_blc_refresh_total_link_info') == 1) {
             $link_info_values = MainWPLinksCheckerDB::Instance()->getLinksData(array('link_info'));
             $total = array();
             if (is_array($link_info_values)) {
@@ -107,9 +117,37 @@ class MainWPLinksChecker
         } else {
              MainWPLinksCheckerDB::Instance()->updateLinkschecker(array('site_id' => $website_id, 'active' => 0));     
         }
-        update_option('mainwp_blc_refresh_total_link_info', 'yes');
+        update_option('mainwp_blc_refresh_total_link_info', 1);
     }
   
+    public function trashed_container($container_id, $site_id, $is_post = false) {
+        if (empty($container_id) || empty($site_id))
+            return;
+        
+        $data = MainWPLinksCheckerDB::Instance()->getLinksCheckerBy('site_id', $site_id);
+        $link_data = unserialize($data->link_data);
+        if (is_array($link_data)) {
+            $new_link_data = array();
+            foreach($link_data as $link) {                
+                if (!$is_post) {
+                    if (($link->source_data  && $link->source_data['container_anypost']) || $link->container_id != $container_id) {                                       
+                        $new_link_data[] = $link;
+                    }
+                } else {                    
+                    if (!$link->source_data || !$link->source_data['container_anypost'] || $link->container_id != $container_id) {                        
+                        $new_link_data[] = $link;
+                    }                        
+                }                
+            }
+            $new_link_info = $this->get_new_link_info($new_link_data);            
+            $data_update = array('site_id' => $site_id, 
+                            'link_data' => serialize($new_link_data),
+                            'link_info' => serialize($new_link_info)
+                            );           
+            MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);            
+        }    
+    }
+    
     public static function renderMetabox() {
         if (isset($_GET['page']) && $_GET['page'] == "managesites") {        
             self::childsite_metabox();
@@ -336,9 +374,11 @@ class MainWPLinksChecker
                 }
                 $new_link_data[] = $link;
             }
+            $new_link_info = $this->get_new_link_info($new_link_data); 
             $data_update = array('site_id' => $update['site_id'], 
-                            'link_data' => serialize($new_link_data)
-                            );
+                            'link_data' => serialize($new_link_data),
+                            'link_info' => serialize($new_link_info),
+                            );            
             MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
             return true;   
         }
@@ -394,8 +434,10 @@ class MainWPLinksChecker
                 }
                 $new_link_data[] = $link;
             }
+            $new_link_info = $this->get_new_link_info($new_link_data); 
             $data_update = array('site_id' => $update['site_id'], 
-                            'link_data' => serialize($new_link_data)
+                            'link_data' => serialize($new_link_data),
+                            'link_info' => serialize($new_link_info)
                             );
             MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
             return true;   
@@ -424,8 +466,10 @@ class MainWPLinksChecker
                 }
                 $new_link_data[] = $link;
             }
+            $new_link_info = $this->get_new_link_info($new_link_data); 
             $data_update = array('site_id' => $update['site_id'], 
-                            'link_data' => serialize($new_link_data)
+                            'link_data' => serialize($new_link_data),
+                            'link_info' => serialize($new_link_info),
                             );
             MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
             return true;   
@@ -447,15 +491,32 @@ class MainWPLinksChecker
                     $new_link_data[] = $link;
                 }                
             }
+            $new_link_info = $this->get_new_link_info($new_link_data);            
             $data_update = array('site_id' => $update['site_id'], 
-                            'link_data' => serialize($new_link_data)
+                            'link_data' => serialize($new_link_data),
+                            'link_info' => serialize($new_link_info)
                             );
             MainWPLinksCheckerDB::Instance()->updateLinksChecker($data_update);
             return true;   
         }
         return false;
     }
-
+    
+    function get_new_link_info($all_links) {
+        $link_info = array( 'broken' => 0, 'redirects' => 0, 'dismissed' => 0, 'all' => 0 );        
+        foreach($all_links as $link) {
+            if ($link->broken == 1)
+              $link_info['broken'] += 1;  
+            if ($link->redirect_count > 0)
+              $link_info['redirects'] += 1; 
+            if ($link->dismissed == 1)
+              $link_info['dismissed'] += 1; 
+            $link_info['all'] += 1; 
+        }
+        update_option('mainwp_blc_refresh_total_link_info', 1);
+        return $link_info;
+    }
+    
     public static function render() {              
         self::renderTabs();
     }
@@ -1067,8 +1128,8 @@ class MainWPLinksChecker
                 }
                 echo $image . $html;                
                 if ($link->source_data['comment_id'] && ($link->source_data['comment_status'] != 'trash') && ($link->source_data['comment_status'] != 'spam')) { ?>
-                     <span class="hidden source_column_data" data-comment_id="<?php echo $link->source_data['comment_id']; ?>" ></span>
-                    <div class="row_actions">
+                <span class="hidden source_column_data" data-comment_id="<?php echo $link->source_data['comment_id']; ?>" data-site_id_encode="<?php echo base64_encode($link->site_id); ?>"></span>
+                    <div class="row-actions">
                        <span class="edit">
                            <a href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('comment.php?action=editcomment&c=' . $link->source_data['comment_id']); ?>"
                               title="Edit this item"><?php _e('Edit','mainwp'); ?></a>
@@ -1109,7 +1170,7 @@ class MainWPLinksChecker
                         echo $source;
                          ?>
                         <span class="hidden source_column_data" data-post_id="<?php echo $link->container_id; ?>" ></span>
-                        <div class="row_actions">
+                        <div class="row-actions">
                             <?php if ($link->source_data['post_status'] != 'trash') { ?>
                             <span class="edit"><a
                                     href="admin.php?page=SiteOpen&websiteid=<?php echo $website->id; ?>&location=<?php echo base64_encode('post.php?post=' .$link->container_id . '&action=edit'); ?>"
