@@ -430,7 +430,7 @@ jQuery(function($){
      */
 	function mwp_hideLinkEditor(link_id) {
 		var editRow = isNaN(link_id) ? link_id : $('#blc-edit-row-' + link_id);
-		editRow.prev('tr.blc-row').show();
+		editRow.prev('tr.blc-row').show();                
 		editRow.remove();
 	}
 
@@ -522,15 +522,15 @@ jQuery(function($){
 				if (response && (typeof(response['error']) != 'undefined')){
 					//An internal error occurred before the link could be edited.
                                         if (response.error === 'NOTALLOW')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
+                                            editRow.find('#mwp_blc_edit_link_error_box').html(__('You\'re not allowed to do that')).show();
                                         else if (response.error === 'UNDEFINEDERROR')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('An unexpected error occured')).show();
+                                            editRow.find('#mwp_blc_edit_link_error_box').html(__('An unexpected error occured')).show();
                                         else if (response.error === 'NOTFOUNDLINK')
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
+                                            editRow.find('#mwp_blc_edit_link_error_box').html(__('Can\'t find the link')).show();
                                         else if (response.error === 'URLINVALID') {
-                                            master.find('#mwp_blc_edit_link_error_box').html(__('The new URL is invalid')).show();
+                                            editRow.find('#mwp_blc_edit_link_error_box').html(__('The new URL is invalid')).show();
                                         } else {
-                                            master.find('#mwp_blc_edit_link_error_box').html(response.error).show();
+                                            editRow.find('#mwp_blc_edit_link_error_box').html(response.error).show();
                                         }      
                                         return false;
 				} else if (response.errors && response.errors.length > 0) {
@@ -557,7 +557,7 @@ jQuery(function($){
 					msg = msg + '\n<?php echo esc_js(__("The following error(s) occurred :")); ?>\n* ';
 					msg = msg + response.errors.join('\n* ');
 
-                                        master.find('#mwp_blc_edit_link_info_box').html(msg).show();
+                                        editRow.find('#mwp_blc_edit_link_info_box').html(msg).show();
                                         return false;
 				} else {
 					//Everything went well. Update the link row with the new values.

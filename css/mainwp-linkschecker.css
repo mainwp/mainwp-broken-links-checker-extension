@@ -203,3 +203,6 @@ img.waiting {
     overflow: hidden;
     padding-left: 16px;
 }
+.blc-row .working-status {
+    white-space: normal;
+}
