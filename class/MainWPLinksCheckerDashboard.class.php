@@ -141,7 +141,7 @@ class MainWPLinksCheckerDashboard
             if (is_array($websites) && count($websites) > 0) {                
                self::getDashboardTableRow($websites);                  
             } else {
-               _e("<tr><td colspan=\"6\">No websites were found with the Broken Link Checker plugin installed.</td></tr>");
+               _e("<tr><td colspan=\"7\">No websites were found with the Broken Link Checker plugin installed.</td></tr>");
             }
             ?>
            </tbody>

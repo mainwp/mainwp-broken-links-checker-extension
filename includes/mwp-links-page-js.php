@@ -114,15 +114,17 @@ jQuery(function($){
 				} else {
 					me.html('<?php echo esc_js(__('Not broken' ));  ?>');
 					//An internal error occured before the link could be edited.
-                                        if (data.error === 'NOTALLOW')
-                                            statusEl.html(__('You\'re not allowed to do that')).show();
-                                        else if (data.error === 'COULDNOTMODIFY')
-                                            statusEl.html(__('Couldn\'t modify the link')).show();
-                                        else if (data.error === 'NOTFOUNDLINK')
-                                            statusEl.html(__('Can\'t find the link')).show();
-                                        else {
-                                            statusEl.html(data.error).show();
-                                        }      
+                                        if (data) {
+                                            if (data.error === 'NOTALLOW')
+                                                statusEl.html(__('You\'re not allowed to do that')).show();
+                                            else if (data.error === 'COULDNOTMODIFY')
+                                                statusEl.html(__('Couldn\'t modify the link')).show();
+                                            else if (data.error === 'NOTFOUNDLINK')
+                                                statusEl.html(__('Can\'t find the link')).show();
+                                            else {
+                                                statusEl.html(data.error).show();
+                                            }   
+                                        }
                                         return false;
 				}
 			},

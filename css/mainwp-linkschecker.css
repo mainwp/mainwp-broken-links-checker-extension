@@ -196,3 +196,10 @@ img.waiting {
     font-size: 1em;
     padding: 0;
 }
+.blc-link-url {
+    background-image: none;
+    background-position: left center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    padding-left: 16px;
+}

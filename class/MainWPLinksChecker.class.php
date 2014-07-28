@@ -17,6 +17,58 @@ class MainWPLinksChecker
     protected $option_handle = 'mainwp_linkschecker_options';
     protected $option;
       
+    var $http_status_codes = array(
+        // [Informational 1xx]  
+        100=>'Continue',  
+        101=>'Switching Protocols',  
+        // [Successful 2xx]  
+        200=>'OK',  
+        201=>'Created',  
+        202=>'Accepted',  
+        203=>'Non-Authoritative Information',  
+        204=>'No Content',  
+        205=>'Reset Content',  
+        206=>'Partial Content',  
+        // [Redirection 3xx]  
+        300=>'Multiple Choices',  
+        301=>'Moved Permanently',  
+        302=>'Found',  
+        303=>'See Other',  
+        304=>'Not Modified',  
+        305=>'Use Proxy',  
+        //306=>'(Unused)',  
+        307=>'Temporary Redirect',  
+        // [Client Error 4xx]  
+        400=>'Bad Request',  
+        401=>'Unauthorized',  
+        402=>'Payment Required',  
+        403=>'Forbidden',  
+        404=>'Not Found',  
+        405=>'Method Not Allowed',  
+        406=>'Not Acceptable',  
+        407=>'Proxy Authentication Required',  
+        408=>'Request Timeout',  
+        409=>'Conflict',  
+        410=>'Gone',  
+        411=>'Length Required', 
+        412=>'Precondition Failed',  
+        413=>'Request Entity Too Large',  
+        414=>'Request-URI Too Long',  
+        415=>'Unsupported Media Type',  
+        416=>'Requested Range Not Satisfiable',  
+        417=>'Expectation Failed',  
+        // [Server Error 5xx]  
+        500=>'Internal Server Error',  
+        501=>'Not Implemented',  
+        502=>'Bad Gateway',  
+        503=>'Service Unavailable',  
+        504=>'Gateway Timeout',  
+        505=>'HTTP Version Not Supported',
+        509=>'Bandwidth Limit Exceeded',
+        510=>'Not Extended',
+    );
+	
+    
     static function Instance()
     {
         if (MainWPLinksChecker::$instance == null) MainWPLinksChecker::$instance = new MainWPLinksChecker();
@@ -520,7 +572,7 @@ class MainWPLinksChecker
         foreach($all_links as $link) {
             if ($link->broken == 1)
               $link_info['broken'] += 1;  
-            if ($link->redirect_count > 0)
+            if ($link->redirect_count > 0 && !$link->dismissed)
               $link_info['redirects'] += 1; 
             if ($link->dismissed == 1)
               $link_info['dismissed'] += 1; 
@@ -633,8 +685,8 @@ class MainWPLinksChecker
                                     $selected_links[] = $link;
                             }
                         } else if ($filter == "redirects") {
-                            foreach($link_data as $link) {
-                                if ($link->redirect_count  > 1)
+                            foreach($link_data as $link) {                                
+                                if (!$link->dismissed && $link->redirect_count > 0)
                                     $selected_links[] = $link;
                             }
                         }
@@ -682,7 +734,10 @@ class MainWPLinksChecker
                     </th>
                     <th scope="col" id="source" class="manage-column column-source sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Source','mainwp'); ?></span><span class="sorting-indicator"></span></a>
-                    </th>                                           
+                    </th> 
+                    <th scope="col" id="url" class="manage-column column-url sortable desc" style="">
+                        <a href="#" onclick="return false;"><span><?php _e('Site URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th> 
                 </tr>
                 </thead>
 
@@ -704,7 +759,10 @@ class MainWPLinksChecker
                     </th>
                     <th scope="col" id="source" class="manage-column column-source sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('Source','mainwp'); ?></span><span class="sorting-indicator"></span></a>
-                    </th>  
+                    </th> 
+                    <th scope="col" id="url" class="manage-column column-url sortable desc" style="">
+                        <a href="#" onclick="return false;"><span><?php _e('Site URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th> 
                 </tr>
                 </tfoot> 
                 <tbody class="list:posts">
@@ -948,7 +1006,17 @@ class MainWPLinksChecker
                         $website_data->url = $sites_url[$link->site_id];
                         MainWPLinksChecker::Instance()->column_source($link, $website_data); 
                     ?>
-                </td>                
+                </td>    
+                <td class="url column-url">       
+                    <a href="<?php echo $sites_url[$link->site_id]; ?>" target="_blank"><?php echo $sites_url[$link->site_id]; ?></a><br/>
+                    <div class="row-actions">
+                        <span class="edit">
+                            <a href="admin.php?page=managesites&dashboard=<?php echo $link->site_id; ?>"><?php _e("Dashboard"); ?></a><br/>                                                       
+                        </span> | <span class="edit">
+                            <a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $link->site_id; ?>"><?php _e("Open WP-Admin");?></a>
+                        </span>
+                    </div>                    
+                </td>    
             </tr>
     <?php 
             MainWPLinksChecker::Instance()->link_details_row($link);        
@@ -1045,8 +1113,8 @@ class MainWPLinksChecker
                                 $code = MWP_BLC_LINK_STATUS_WARNING;
                         }
 
-                        if ( array_key_exists(intval($link->http_code), $link->http_status_codes) ){
-                                $text = $link->http_status_codes[intval($link->http_code)];
+                        if ( array_key_exists(intval($link->http_code), MainWPLinksChecker::Instance()->http_status_codes) ){
+                                $text = MainWPLinksChecker::Instance()->http_status_codes[intval($link->http_code)];
                         }
                 }
 
@@ -1221,7 +1289,7 @@ class MainWPLinksChecker
         }
     }
     
-    protected function inline_editor($visible_columns = 6) {
+    protected function inline_editor($visible_columns = 7) {
         ?>
         <table style="display: none;"><tbody>
                 <tr id="blc-inline-edit-row" class="blc-inline-editor">
