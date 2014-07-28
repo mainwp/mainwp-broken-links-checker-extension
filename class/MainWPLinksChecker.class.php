@@ -956,6 +956,10 @@ class MainWPLinksChecker
             $rownum++;
 
             $rowclass = ($rownum % 2)? 'alternate' : '';
+            if ( $link->redirect_count > 0){
+                    $rowclass .= ' blc-redirect';
+            }
+                
             if ( $link->broken ){
                 //Add a highlight to broken links that appear to be permanently broken
                 if ( $link->permanently_broken ){
