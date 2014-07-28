@@ -206,3 +206,7 @@ img.waiting {
 .blc-row .working-status {
     white-space: normal;
 }
+#mainwp-blc-setting-tab-content {
+    min-height: 200px;
+}
+

@@ -128,6 +128,10 @@ class MainWPLinksChecker
         add_action( 'wp_ajax_mainwp_broken_links_checker_discard', array($this,'ajax_discard') );
         add_action( 'wp_ajax_mainwp_broken_links_checker_comment_trash', array($this,'ajax_comment_trash') );
         add_action( 'wp_ajax_mainwp_broken_links_checker_post_trash', array($this,'ajax_post_trash') );        
+        add_action( 'wp_ajax_mainwp_linkschecker_settings_loading_sites', array($this,'ajax_settings_loading_sites') );        
+        add_action( 'wp_ajax_mainwp_linkschecker_performsavelinkscheckersettings', array($this,'ajax_settings_perform_save') );        
+        add_action( 'wp_ajax_mainwp_linkschecker_settings_recheck_loading', array($this,'ajax_settings_recheck_loading') );        
+        add_action( 'wp_ajax_mainwp_linkschecker_perform_recheck', array($this,'ajax_perform_recheck') );        
     }
     
     public function admin_init() {
@@ -243,6 +247,101 @@ class MainWPLinksChecker
          MainWPRecentPosts::trash();
         die();
     }
+    
+    function ajax_settings_loading_sites()
+    {
+        $check_threshold = intval($_POST['check_threshold']);
+        if ($check_threshold <= 0) {
+            die(json_encode(array('error' => __("Every hour value must not be empty."))));
+        } else {
+            $this->set_option('check_threshold', $check_threshold);
+        }
+        
+        $sites = MainWPLinksCheckerDB::Instance()->getLinksData(array('site_id'));
+        $site_ids = array();
+        foreach($sites as $site) {
+            $site_ids[] = $site->site_id;            
+        }
+        //print_r($site_ids);
+        $dbwebsites = array();
+        if (count($site_ids) > 0) {
+            global $mainWPLinksCheckerExtensionActivator;
+            $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $site_ids, array());              
+        }
+        //print_r($dbwebsites);
+        if (is_array($dbwebsites) && count($dbwebsites) > 0) {
+            $html = '<input type="hidden" id="mainwp-blc-setting-check_threshold" value="' . $check_threshold . '">';            
+            foreach($dbwebsites as $site) {
+                $html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . $site->name. '</strong>: <span class="status"></span></div>';
+            }
+            $html .= '<br><div id="mainwp_blc_setting_ajax_message_zone" class="mainwp_info-box-yellow hidden-field"></div>';            
+            die(json_encode(array('success'=> true, 'result' => $html)));
+        } else {
+            die(json_encode(array('error' => __("There are not sites with the Broken Link Checker plugin activated."))));
+        }            
+    }
+        
+    function ajax_settings_recheck_loading()
+    {        
+        $sites = MainWPLinksCheckerDB::Instance()->getLinksData(array('site_id'));
+        $site_ids = array();
+        foreach($sites as $site) {
+            $site_ids[] = $site->site_id;            
+        }
+        //print_r($site_ids);
+        $dbwebsites = array();
+        if (count($site_ids) > 0) {
+            global $mainWPLinksCheckerExtensionActivator;
+            $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $site_ids, array());              
+        }
+        //print_r($dbwebsites);
+        if (is_array($dbwebsites) && count($dbwebsites) > 0) {
+            foreach($dbwebsites as $site) {
+                $html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . $site->name. '</strong>: <span class="status"></span></div>';
+            }
+            $html .= '<br><div id="mainwp_blc_setting_ajax_message_zone" class="mainwp_info-box-yellow hidden-field"></div>';            
+            die(json_encode(array('success'=> true, 'result' => $html)));
+        } else {
+            die(json_encode(array('error' => __("There are not sites with the Broken Link Checker plugin activated."))));
+        }            
+    }
+    
+    
+    public function ajax_settings_perform_save() {
+        
+        $siteid = $_POST['siteId'];	
+        $check_threshold = $_POST['check_threshold'];	        
+        
+        if (empty($siteid))	
+            die(json_encode(array('error' => 'Error: site_id empty'))); 
+        
+        global $mainWPLinksCheckerExtensionActivator;
+        
+        $post_data = array('mwp_action' => 'save_settings');
+        $post_data['check_threshold'] = $check_threshold;
+        $information = apply_filters('mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $siteid, 'links_checker', $post_data);			
+
+        //unset($information['data']);        
+        die(json_encode($information)); 		
+    }	
+      
+    
+    
+    public function ajax_perform_recheck() {
+        
+        $siteid = $_POST['siteId'];	
+        
+        if (empty($siteid))	
+            die(json_encode(array('error' => 'Error: site_id empty'))); 
+        
+        global $mainWPLinksCheckerExtensionActivator;
+        
+        $post_data = array('mwp_action' => 'force_recheck');        
+        $information = apply_filters('mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $siteid, 'links_checker', $post_data);			
+        //unset($information['data']);        
+        die(json_encode($information)); 		
+    }	
+    
     
     public static function network_metabox() {
         
@@ -588,7 +687,7 @@ class MainWPLinksChecker
     
     public static function renderTabs() {           
         
-        $style_dashboard_tab = $style_broken_links_tab = ' style="display: none" ';        
+        $style_dashboard_tab = $style_broken_links_tab = $style_settings_tab = ' style="display: none" ';        
         $filter_id = "all";
         if (isset($_GET['filter_id']) && !empty($_GET['filter_id'])) {
             $filter_id = $_GET['filter_id'];
@@ -637,7 +736,7 @@ class MainWPLinksChecker
                 <div  class="mainwp_error" id="wpps-error-box" ></div>
                 <div  class="mainwp_info-box-yellow hidden-field" id="wpps-info-box" ></div>
                 <?php self::MainWPLinksCheckerQSG(); ?>                                
-                <a id="blc_dashboard_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_dashboard_tab) ? "mainwp_action_down" : ""); ?>"><?php _e("Broken Links Checker Dashboard"); ?></a><a id="blc_broken_links_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_broken_links_tab) ? "mainwp_action_down" : ""); ?>"><?php _e("Broken Links"); ?></a>
+                <a id="blc_dashboard_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_dashboard_tab) ? "mainwp_action_down" : ""); ?>"><?php _e("Broken Links Checker Dashboard"); ?></a><a id="blc_broken_links_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_broken_links_tab) ? "mainwp_action_down" : ""); ?>"><?php _e("Broken Links"); ?></a><a id="blc_settings_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_settings_tab) ? "mainwp_action_down" : ""); ?>"><?php _e("Settings"); ?></a>
                 <br />                             
                 <div id="blc_dashboard_tab" <?php echo $style_dashboard_tab; ?>> 
                     <div id="mainwp_linkschecker_option">                        
@@ -657,8 +756,57 @@ class MainWPLinksChecker
                 <div id="blc_broken_links_tab" <?php echo $style_broken_links_tab; ?>> 
                     <?php self::gen_broken_links_tab($dbwebsites_linkschecker, $site_id, $filter_id); ?>
                 </div>
+                <div id="blc_settings_tab" <?php echo $style_settings_tab; ?>> 
+                    <?php self::gen_settings_tab(); ?>
+                </div>
             </div>
         </div>              
+    <?php
+    }
+    
+    static function gen_settings_tab() {
+        $check_threshold = MainWPLinksChecker::Instance()->get_option('check_threshold');
+    ?>
+    <br>
+    <div class="mainwp_info-box-red hidden-field" id="mwp-blc-setting-error-box"></div>
+    <div class="postbox">
+        <h3 class="mainwp_box_title"><span><?php _e("Settings", "mainwp"); ?></span></h3>
+        <div class="inside">
+        <h4 id="mwp_blc_settings_saving_title" class="hidden-field"><?php _e("Saving settings to child sites ...", "mainwp"); ?></h4>            
+        <h4 id="mwp_blc_settings_start_recheck_title" class="hidden-field"><?php _e("Rechecking on child sites ...", "mainwp"); ?></h4>            
+        <div class="mainwp_info-box hidden"></div>
+        <div id="mainwp-blc-setting-tab-content">
+            <table class="form-table">
+                <tbody>            
+                <tr>
+                    <th scope="row">
+                        <?php _e("Check each link", "mainwp"); ?>
+                    </th>
+                    <td><?php _e("Every", "mainwp"); ?> <input type="text" maxlength="5" size="5" value="<?php echo $check_threshold; ?>" id="check_threshold" name="check_threshold"> <?php _e("hours", "mainwp"); ?><br>
+                        <span class="description"><?php _e("Existing links will be checked this often. New links will usually be checked ASAP."); ?></span>
+                    </td>
+                </tr>   
+                <tr valign="top">
+                    <th scope="row"><?php _e("Forced recheck", "mainwp"); ?></th>
+                    <td>
+                        <input type="button" value="<?php _e("Re-check all pages", "mainwp"); ?>" id="mwp-blc-start-recheck-btn" name="mwp-blc-start-recheck-btn" class="button">
+                        <span id="mainwp_blc_setting_recheck_loading" class="hidden-field"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>"></span> 
+                        <input type="hidden" id="recheck" value="" name="recheck">
+                        <br>
+                        <span class="description"><?php _e("The \"Nuclear Option\". Click this button to make the plugin empty its link database and recheck the entire site from scratch.", "mainwp"); ?></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>    
+    </div>
+    </div>
+    <p class="submit">                                    
+        <span style="float:left;">
+            <input type="button" name="button_preview" id="mwp-blc-save-settings-btn" class="button-primary" value="<?php _e("Save Settings", "mainwp"); ?>">                                        
+            <span id="mainwp_blc_setting_loading" class="hidden-field"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>"></span> 
+        </span>
+    </p>
     <?php
     }
     
@@ -697,8 +845,7 @@ class MainWPLinksChecker
         }
      
         ?>
-        <div id="mainwp_blc_links_content">
-            
+        <div id="mainwp_blc_links_content">            
             
             <div class="tablenav top">
                 <div class="alignleft">

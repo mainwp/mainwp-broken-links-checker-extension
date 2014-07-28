@@ -2,12 +2,17 @@
 jQuery(document).ready(function($) {  
         
     $('#blc_dashboard_tab_lnk').on('click', function () {   
-        showBLCheckerTab(true, false);
+        showBLCheckerTab(true, false, false);
         return false;
     });
     
     $('#blc_broken_links_tab_lnk').on('click', function () {  
-        showBLCheckerTab(false, true);
+        showBLCheckerTab(false, true, false);
+        return false;
+    });
+    
+    $('#blc_settings_tab_lnk').on('click', function () {  
+        showBLCheckerTab(false, false, true);
         return false;
     });
     
@@ -93,11 +98,79 @@ jQuery(document).ready(function($) {
             } 
         },'json'); 
     });
+    
+    $('#mwp-blc-save-settings-btn').live('click', function() {
+        if ($('#check_threshold').val() <= 0) {
+            $('#mwp-blc-setting-error-box').html(__("Every hour must not be empty")).fadeIn();
+            return false;
+        }       
+        
+        var data = { 
+            action: 'mainwp_linkschecker_settings_loading_sites',
+            check_threshold: $('#check_threshold').val()
+        }
+        
+        var me = $(this);
+        
+        $('#mwp-blc-setting-error-box').hide();
+        $('#mainwp_blc_setting_loading').show();
+        me.attr("disabled","disabled");
+        jQuery.post(ajaxurl, data, function (response) {
+            $('#mainwp_blc_setting_loading').hide();
+            if (response) {
+                if (response['success'] && response['result']) {
+                    me.remove();    
+                    $('#mwp_blc_settings_saving_title').show();                                                            
+                    $('#mainwp-blc-setting-tab-content').html(response.result);                    
+                    mainwp_linkschecker_save_settings_start_next();
+                } else if (response['error']) {
+                    $('#mwp-blc-setting-error-box').html(response.error).fadeIn();                    
+                } else {
+                    $('#mwp-blc-setting-error-box').html(__("Undefined error")).fadeIn();                    
+                }                   
+            } else {
+                $('#mwp-blc-setting-error-box').html(__("Undefined error")).fadeIn();                    
+            }       
+            me.removeAttr('disabled');
+        },'json');
+        
+    });
+    
+    $('#mwp-blc-start-recheck-btn').live('click', function() {
+        var data = { 
+            action: 'mainwp_linkschecker_settings_recheck_loading'          
+        }
+        
+        var me = $(this);
+        
+        $('#mwp-blc-setting-error-box').hide();
+        $('#mainwp_blc_setting_recheck_loading').show();
+        me.attr("disabled","disabled");
+        jQuery.post(ajaxurl, data, function (response) {
+            $('#mainwp_blc_setting_recheck_loading').hide();
+            if (response) {
+                if (response['success'] && response['result']) {
+                    me.remove();    
+                    $('#mwp_blc_settings_start_recheck_title').show();                                                            
+                    $('#mainwp-blc-setting-tab-content').html(response.result);                    
+                    mainwp_linkschecker_settings_recheck_start_next();
+                } else if (response['error']) {
+                    $('#mwp-blc-setting-error-box').html(response.error).fadeIn();                    
+                } else {
+                    $('#mwp-blc-setting-error-box').html(__("Undefined error")).fadeIn();                    
+                }                   
+            } else {
+                $('#mwp-blc-setting-error-box').html(__("Undefined error")).fadeIn();                    
+            }       
+            me.removeAttr('disabled');
+        },'json');
+        
+    });
         
 });
   
 
-showBLCheckerTab = function(dashboard,links) {
+showBLCheckerTab = function(dashboard, links, setting) {
     var dashboard_tab_lnk = jQuery("#blc_dashboard_tab_lnk");
     if (dashboard)  dashboard_tab_lnk.addClass('mainwp_action_down');
     else dashboard_tab_lnk.removeClass('mainwp_action_down'); 
@@ -106,16 +179,27 @@ showBLCheckerTab = function(dashboard,links) {
     if (links) links_tab_lnk.addClass('mainwp_action_down');
     else links_tab_lnk.removeClass('mainwp_action_down');
     
+    var settings_tab_lnk = jQuery("#blc_settings_tab_lnk");
+    if (setting) settings_tab_lnk.addClass('mainwp_action_down');
+    else settings_tab_lnk.removeClass('mainwp_action_down');
+    
     var dashboard_tab = jQuery("#blc_dashboard_tab");    
     var links_tab = jQuery("#blc_broken_links_tab");    
+    var settings_tab = jQuery("#blc_settings_tab"); 
     
     if (dashboard) {
         dashboard_tab.show();
-        links_tab.hide();            
+        links_tab.hide();
+        settings_tab.hide();
     } else if (links) {
         dashboard_tab.hide();        
-        links_tab.show();       
-    }   
+        links_tab.show();   
+        settings_tab.hide();
+    } else if (setting) {
+        dashboard_tab.hide();
+        links_tab.hide();   
+        settings_tab.show();
+    }  
 };
 
 var linkschecker_bulkMaxThreads = 3;
@@ -323,17 +407,17 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
 {
     linkschecker_bulkCurrentThreads++;	
     pSiteToProcess.attr('status', 'progress');
-    var statusEl = pSiteToProcess.find('.status').html('<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' + 'running ..');
+    var statusEl = pSiteToProcess.find('.status').html('<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' + 'running ...');
 
     var data = {
         action:'mainwp_linkschecker_performsavelinkscheckersettings',
-        siteId: pSiteToProcess.attr('siteid')
+        siteId: pSiteToProcess.attr('siteid'),
+        check_threshold: jQuery('#mainwp-blc-setting-check_threshold').val()
     };
 
     jQuery.post(ajaxurl, data, function (response)
     {
-        pSiteToProcess.attr('status', 'done');   
-        
+        pSiteToProcess.attr('status', 'done');
         if (response) {
             if (response['result'] == 'NOTCHANGE') {			
                 statusEl.html('Settings saved with no changes.').fadeIn();						
@@ -354,12 +438,64 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
         linkschecker_bulkCurrentThreads--;
         linkschecker_bulkFinishedThreads++;
         if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
-            jQuery('#mainwp_linkschecker_apply_setting_ajax_message_zone').html('Saved Settings to child sites.').fadeIn(100);
+            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Saved Settings to child sites.').fadeIn(100);
             setTimeout(function() {
-                location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&action=setting';
+                location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
             }, 3000);              
         }
         mainwp_linkschecker_save_settings_start_next();     
+    }, 'json');
+};
+
+mainwp_linkschecker_settings_recheck_start_next = function()
+{
+    if (linkschecker_bulkTotalThreads == 0)
+        linkschecker_bulkTotalThreads = jQuery('.mainwpProccessSitesItem[status="queue"]').length;
+		
+    while ((siteToProcess = jQuery('.mainwpProccessSitesItem[status="queue"]:first')) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < branding_MaxThreads))
+    {                  
+        mainwp_linkschecker_settings_recheck_start_specific(siteToProcess);
+    }	
+};
+
+mainwp_linkschecker_settings_recheck_start_specific = function (pSiteToProcess)
+{
+    linkschecker_bulkCurrentThreads++;	
+    pSiteToProcess.attr('status', 'progress');
+    var statusEl = pSiteToProcess.find('.status').html('<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' + 'running ...');
+
+    var data = {
+        action:'mainwp_linkschecker_perform_recheck',
+        siteId: pSiteToProcess.attr('siteid')        
+    };
+
+    jQuery.post(ajaxurl, data, function (response)
+    {
+        pSiteToProcess.attr('status', 'done');
+        if (response) {
+            if (response['result'] == 'SUCCESS') {			
+                statusEl.html('Successful').show();	                        
+            } else if (response['error']) {			
+                statusEl.html(response['error']).show();
+                statusEl.css('color', 'red');
+            } else { 						
+                statusEl.html(__('Undefined Error')).show();
+                statusEl.css('color', 'red');
+            }
+        } else {
+            statusEl.html(__('Undefined Error')).show();
+            statusEl.css('color', 'red');
+        }
+        
+        linkschecker_bulkCurrentThreads--;
+        linkschecker_bulkFinishedThreads++;
+        if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
+            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Started recheck on child sites.').fadeIn(100);
+            setTimeout(function() {
+                location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
+            }, 3000);              
+        }
+        mainwp_linkschecker_settings_recheck_start_next();     
     }, 'json');
 };
 
