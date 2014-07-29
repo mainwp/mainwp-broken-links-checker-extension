@@ -3,7 +3,7 @@ var blc_is_broken_filter = <?php echo isset($_GET['filter_id']) && $_GET['filter
 var blc_current_base_filter = '<?php echo isset($_GET['filter_id']) && !empty($_GET['filter_id']) ? $_GET['filter_id'] : 'all'; ?>';
 var blc_current_base_site_id = '<?php echo isset($_GET['site_id']) && !empty($_GET['site_id']) ? $_GET['site_id'] : ''; ?>';
 
-function alterLinkCounter(factor, filterId){
+function mwp_alterLinkCounter(factor, filterId){
 	var counter;
 	if (filterId) {
 		counter = jQuery('.filter-' + filterId + '-link-count');
@@ -30,7 +30,7 @@ function alterLinkCounter(factor, filterId){
 	}    
 }
 
-function replaceLinkId(old_id, new_id){
+function mwp_replaceLinkId(old_id, new_id){
 	var master = jQuery('#blc-row-'+old_id);
 	
 	master.attr('id', 'blc-row-'+new_id);
@@ -40,16 +40,16 @@ function replaceLinkId(old_id, new_id){
 	details_row.attr('id', 'link-details-'+new_id);
 }
 
-function reloadDetailsRow(link_id){
+function mwp_reloadDetailsRow(link_id){
 	var details_row = jQuery('#link-details-'+link_id);
 	
 	//Load up the new link info                     (so sue me)    
 	details_row.find('td').html('<center><?php echo esc_js(__('Loading...' )); ?></center>').load(
-		"<?php echo admin_url('admin-ajax.php'); ?>",
-		{
-			'action' : 'blc_link_details',
-			'link_id' : link_id
-		}
+            "<?php echo admin_url('admin-ajax.php'); ?>",
+            {
+                    'action' : 'blc_link_details',
+                    'link_id' : link_id
+            }
 	);
 }
 
@@ -103,13 +103,13 @@ jQuery(function($){
 							details.remove();
 							master.remove();
 						} else {
-							reloadDetailsRow(link_id);
+							mwp_reloadDetailsRow(link_id);
 						}
 					});
 					
 					//Update the elements displaying the number of results for the current filter.
 					if( blc_is_broken_filter ){
-                                            alterLinkCounter(-1);
+                                            mwp_alterLinkCounter(-1);
                                         }
 				} else {
 					me.html('<?php echo esc_js(__('Not broken' ));  ?>');
@@ -173,8 +173,8 @@ jQuery(function($){
 
 					//Update the elements displaying the number of results for the current filter.
 					if( should_hide_link ){
-						alterLinkCounter(-1);
-						alterLinkCounter(1, 'dismissed');
+						mwp_alterLinkCounter(-1);
+						mwp_alterLinkCounter(1, 'dismissed');
 					}
 				} else if ( data && (typeof(data['error']) != 'undefined') ){
                                     //An internal error occured before the link could be edited.
@@ -236,7 +236,7 @@ jQuery(function($){
 
 					//Update the elements displaying the number of results for the current filter.
 					if( should_hide_link ){
-						alterLinkCounter(-1);
+						mwp_alterLinkCounter(-1);
 					}
 				} else if ( data && (typeof(data['error']) != 'undefined') ){
                                     //An internal error occured before the link could be edited.
@@ -289,7 +289,7 @@ jQuery(function($){
                             master.hide();
                     });
 
-                    alterLinkCounter(-1);
+                    mwp_alterLinkCounter(-1);
                     setTimeout(function() {
                         location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=all&trashed_comment_id=' + commentId + '&trashed_site_id=' + site_id;
                     }, 200);
@@ -331,7 +331,7 @@ jQuery(function($){
                             master.hide();
                     });
 
-                    alterLinkCounter(-1);
+                    mwp_alterLinkCounter(-1);
                     setTimeout(function() {
                         location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=all&trashed_post_id=' + postId + '&trashed_site_id=' + site_id;
                     }, 200);
@@ -566,9 +566,9 @@ jQuery(function($){
 					urlElement.attr('href', response.url).text(response.url);
 
 					//Save the new ID
-					replaceLinkId(linkId, response.new_link_id);
+					mwp_replaceLinkId(linkId, response.new_link_id);
 					//Load up the new link info
-					reloadDetailsRow(response.new_link_id);
+					mwp_reloadDetailsRow(response.new_link_id);
 
 					//Update the link text if it was edited.
 					if ((newText !== null) && (response.link_text !== null)) {
@@ -719,7 +719,7 @@ jQuery(function($){
 							master.hide();
 						});
 						
-						alterLinkCounter(-1);
+						mwp_alterLinkCounter(-1);
 						
 						return;
 					} else if (data.errors && data.errors.length > 0 ) {
