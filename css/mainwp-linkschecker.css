@@ -215,6 +215,11 @@ img.waiting {
 #mainwp_blc_links_table .manage-column.column-title {
     width: 30%;
 }
+
+#mainwp_blc_links_table td.column-title .row-actions {
+    margin-left: 16px;
+}
+
 .clearfix {
     clear: both;
 }
