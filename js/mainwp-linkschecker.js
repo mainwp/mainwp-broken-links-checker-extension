@@ -19,7 +19,7 @@ jQuery(document).ready(function($) {
     $('#mwp_linkschecker_btn_display').live('click', function() {                     
        $(this).closest('form').submit();
     });
-    
+         
     $('.mwp-linkschecker-upgrade-noti-dismiss').live('click', function() {
         var parent = $(this).closest('.ext-upgrade-noti');
         parent.hide();

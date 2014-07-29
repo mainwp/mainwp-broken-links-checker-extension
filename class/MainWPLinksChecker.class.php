@@ -75,7 +75,8 @@ class MainWPLinksChecker
         return MainWPLinksChecker::$instance;
     }
 
-    public function __construct() {         
+    public function __construct() {   
+        $this->option = get_option($this->option_handle);
         if (isset($_GET['page']) && $_GET['page'] == 'Extensions-Mainwp-Broken-Links-Checker-Extension') {
             if (isset($_GET['trashed_site_id']) && $_GET['trashed_site_id'] ) {
                 if (isset($_GET['trashed_post_id']) && $_GET['trashed_post_id'])
@@ -111,10 +112,9 @@ class MainWPLinksChecker
                     }                        
                 }
             }
-            $this->set_option('total_link_info', $total);
+            $this->set_option('total_link_info', $total);            
             update_option('mainwp_blc_refresh_total_link_info', '');            
         }        
-        $this->option = get_option($this->option_handle);
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);                
     }
     
@@ -685,18 +685,18 @@ class MainWPLinksChecker
         self::renderTabs();
     }
     
-    public static function renderTabs() {           
-        
+    public static function renderTabs() {
         $style_dashboard_tab = $style_broken_links_tab = $style_settings_tab = ' style="display: none" ';        
         $filter_id = "all";
-        if (isset($_GET['filter_id']) && !empty($_GET['filter_id'])) {
+        if (isset($_POST['mainwp_blc_links_groups_select']) || isset($_POST['mainwp_blc_select_site']) || isset($_GET['sl'])) {
+            $style_broken_links_tab = ""; 
+        } else if (isset($_GET['filter_id']) && !empty($_GET['filter_id'])) {
             $filter_id = $_GET['filter_id'];
             $style_broken_links_tab = ""; 
         } else {
             $style_dashboard_tab = "";
         } 
-        $site_id = isset($_GET['site_id']) && !empty($_GET['site_id']) ? $_GET['site_id'] : "";
-        
+       
         global $mainWPLinksCheckerExtensionActivator;
         
         $websites = apply_filters('mainwp-getsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), null);              
@@ -712,10 +712,10 @@ class MainWPLinksChecker
         
         $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), $sites_id, array(), $option);              
               
-        $selected_group = 0;       
+        $selected_dashboard_group = 0;       
         
         if(isset($_POST['mainwp_linkschecker_groups_select'])) {
-            $selected_group = intval($_POST['mainwp_linkschecker_groups_select']);            
+            $selected_dashboard_group = intval($_POST['mainwp_linkschecker_groups_select']);            
         } 
         $linkschecker_data = array();
         $results = MainWPLinksCheckerDB::Instance()->getLinkscheckerBy('all');
@@ -725,7 +725,14 @@ class MainWPLinksChecker
         }
 //        print_r($linkschecker_data);
 //        print_r($results);
-        $dbwebsites_linkschecker = MainWPLinksCheckerDashboard::Instance()->get_websites_linkschecker($dbwebsites, $selected_group, $linkschecker_data);         
+        
+        $search = "";
+        if (isset($_GET['s']) && !empty($_GET['s']))
+            $search = $_GET['s'];
+        
+        $dbwebsites_dashboard_linkschecker = MainWPLinksCheckerDashboard::Instance()->get_websites_linkschecker($dbwebsites, $selected_dashboard_group, $search, $linkschecker_data);         
+        $dbwebsites_linkschecker = MainWPLinksCheckerDashboard::Instance()->get_websites_linkschecker($dbwebsites, 0, "", $linkschecker_data);         
+        
         //print_r($dbwebsites_linkschecker);       
         
         unset($dbwebsites);
@@ -743,18 +750,18 @@ class MainWPLinksChecker
                         <div class="clear">                        
                             <div>
                                 <div class="tablenav top">
-                                <?php MainWPLinksCheckerDashboard::gen_select_boxs($dbwebsites_linkschecker, $selected_group); ?>  
+                                <?php MainWPLinksCheckerDashboard::gen_select_boxs($dbwebsites_dashboard_linkschecker, $selected_dashboard_group); ?>  
                                 <input type="button" class="mainwp-upgrade-button button-primary button" 
                                        value="<?php _e("Sync Data"); ?>" id="dashboard_refresh" style="background-image: none!important; float:right; padding-left: .6em !important;">
                                 </div>                            
-                                <?php MainWPLinksCheckerDashboard::gen_dashboard_tab($dbwebsites_linkschecker); ?>                            
+                                <?php MainWPLinksCheckerDashboard::gen_dashboard_tab($dbwebsites_dashboard_linkschecker); ?>                            
                             </div>                                                                          
                         </div>
                     <div class="clear"></div>
                     </div>
                 </div>
                 <div id="blc_broken_links_tab" <?php echo $style_broken_links_tab; ?>> 
-                    <?php self::gen_broken_links_tab($dbwebsites_linkschecker, $site_id, $filter_id); ?>
+                    <?php self::gen_broken_links_tab($dbwebsites_linkschecker, $filter_id); ?>
                 </div>
                 <div id="blc_settings_tab" <?php echo $style_settings_tab; ?>> 
                     <?php self::gen_settings_tab(); ?>
@@ -793,7 +800,7 @@ class MainWPLinksChecker
                         <span id="mainwp_blc_setting_recheck_loading" class="hidden-field"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>"></span> 
                         <input type="hidden" id="recheck" value="" name="recheck">
                         <br>
-                        <span class="description"><?php _e("The \"Nuclear Option\". Click this button to make the plugin empty its link database and recheck the entire site from scratch.", "mainwp"); ?></span>
+                        <span class="description"><?php _e("Click this button to make the plugin empty its link database and recheck the entire site from scratch. Please, be patient until new list gets generated.", "mainwp"); ?></span>
                     </td>
                 </tr>
                 </tbody>
@@ -810,63 +817,117 @@ class MainWPLinksChecker
     <?php
     }
     
-    static function gen_broken_links_tab($websites, $site_id = "", $filter = "all") {
+    static function gen_broken_links_tab($all_websites, $filter = "all") {
         $all_links = $sites_url = array();    
         $link_info = "";
-        foreach($websites as $website) {
-            if (($site_id && $site_id == $website['id']) || empty($site_id)) {
-                $link_data = $website['link_data'];   
-                $sites_url[$website['id']] = $website['url'];
-                if (is_array($link_data) && !empty($link_data[0])) { 
-                    if (empty($filter) || $filter == "all") {
-                        $all_links = array_merge($all_links, $link_data);
-                    } else {
-                        $selected_links = array();
-                        if ($filter == "broken") {
-                            foreach($link_data as $link) {
-                                if ($link->broken == 1)
-                                    $selected_links[] = $link;
-                            }
-                        } else if ($filter == "dismissed") {
-                            foreach($link_data as $link) {
-                                if ($link->dismissed  == 1)
-                                    $selected_links[] = $link;
-                            }
-                        } else if ($filter == "redirects") {
-                            foreach($link_data as $link) {                                
-                                if (!$link->dismissed && $link->redirect_count > 0)
-                                    $selected_links[] = $link;
-                            }
-                        }
-                        $all_links = array_merge($all_links, $selected_links);
+        $selected_site = $selected_group = 0;           
+        $group_sites_ids = null;         
+        $search_sites = array(); 
+        $filter_search = $filter_site = $filter_group = "";
+        
+        if (isset($_GET['site_id']) && !empty($_GET['site_id'])) {
+            $filter_site = $selected_site = $_GET['site_id'];
+        } else if (isset($_GET['filter_search']) && !empty($_GET['filter_search'])) {
+            $filter_search = $_GET['filter_search'];
+        } else if (isset($_GET['group_id']) && !empty($_GET['group_id'])) {
+            $filter_group = $selected_group = $_GET['group_id'];
+        } if(isset($_POST['mainwp_blc_links_groups_select']) && !empty($_POST['mainwp_blc_links_groups_select'])) {
+            $filter_group = $selected_group = intval($_POST['mainwp_blc_links_groups_select']);             
+        } else if(isset($_POST['mainwp_blc_select_site'])) {
+            $filter_site = $selected_site = intval($_POST['mainwp_blc_select_site']);            
+        } else if ((isset($_GET['sl']) && !empty($_GET['sl']))) {
+            $filter_search = trim($_GET['sl']);
+        }
+        
+        $do_filter = false; 
+        
+        if ($filter_group) {
+            global $mainWPLinksCheckerExtensionActivator;                
+            $group_websites = apply_filters('mainwp-getdbsites', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), array(), array($filter_group));  
+            $group_sites_ids = array();
+            foreach($group_websites as $site) {
+                $group_sites_ids[] = $site->id;
+            }   
+            $do_filter = true;
+        } else if ($filter_search) {
+            $find = $filter_search;
+            foreach($all_websites as $website ) {                
+                if (stripos($website['name'], $find) !== false || stripos($website['url'], $find) !== false) {
+                    $search_sites[] = $website;
+                }
+            }
+            $websites = $search_sites;
+            $do_filter = true;
+        } else if (is_array($group_sites_ids)) {
+            if (count($group_sites_ids) > 0) {
+                foreach($all_websites as $website ) {                
+                    if (in_array($website['id'], $group_sites_ids)) {
+                        $search_sites[] = $website;
                     }
-                }            
+                }
+            }
+            $websites = $search_sites;
+            $do_filter = true;
+        } else if ($selected_site) {
+            foreach($all_websites as $website ) {                
+                if ($website['id'] == $selected_site) {
+                    $search_sites[] = $website;
+                }
+            }
+            $websites = $search_sites;
+            $do_filter = true;
+        }  
+        unset($search_sites);    
+        
+        if (!$do_filter) {
+           $websites = $all_websites; 
+        }
+        
+        foreach($websites as $website) {            
+            $link_data = $website['link_data'];   
+            $sites_url[$website['id']] = $website['url'];
+            if (is_array($link_data) && !empty($link_data[0])) { 
+                if (empty($filter) || $filter == "all") {
+                    $all_links = array_merge($all_links, $link_data);
+                } else {
+                    $selected_links = array();
+                    if ($filter == "broken") {
+                        foreach($link_data as $link) {
+                            if ($link->broken == 1)
+                                $selected_links[] = $link;
+                        }
+                    } else if ($filter == "dismissed") {
+                        foreach($link_data as $link) {
+                            if ($link->dismissed  == 1)
+                                $selected_links[] = $link;
+                        }
+                    } else if ($filter == "redirects") {
+                        foreach($link_data as $link) {                                
+                            if (!$link->dismissed && $link->redirect_count > 0)
+                                $selected_links[] = $link;
+                        }
+                    }
+                    $all_links = array_merge($all_links, $selected_links);
+                }
             }
         }
      
         ?>
-        <div id="mainwp_blc_links_content">            
-            
+        <div id="mainwp_blc_links_content"> 
             <div class="tablenav top">
                 <div class="alignleft">
-                    <?php MainWPLinksChecker::Instance()->print_filter_menu($filter, $site_id); ?>
-<!--                    <select name="bulk_action" id="mainwp_bulk_action">
-                        <option value="none"><?php _e('Bulk Action','mainwp'); ?></option>
-                        <option value="publish"><?php _e('Publish','mainwp'); ?></option>
-                        <option value="delete"><?php _e('Delete','mainwp'); ?></option>
-                    </select> <input type="button" name="" id="mainwp_broken_links_checker_apply" class="button" value="<?php _e('Apply','mainwp'); ?>"/>-->
+                    <?php MainWPLinksChecker::Instance()->print_filter_menu($filter, $websites, $filter_search, $filter_site, $filter_group); ?>
                 </div>
+                <br class="clearfix">
+                <?php MainWPLinksChecker::Instance()->gen_select_boxs($all_websites, $filter_search, $selected_group, $selected_site); ?>
                 <div class="alignright">
-<!--                <?php _e('Total Results:','mainwp'); ?> <span id="mainwp_article_uploader_total"><?php echo count($all_links); ?></span>-->
                     <input type="button" style="background-image: none!important; float:right; padding-left: .6em !important;" id="dashboard_refresh" value="<?php _e("Sync Data", 'mainwp'); ?>" class="mainwp-upgrade-button button-primary button">
                 </div>
             </div>            
             <table class="wp-list-table widefat fixed posts tablesorter color-code-link-status" id="mainwp_blc_links_table"
                    cellspacing="0">
                 <thead>
-                <tr>
-                    <th scope="col" id="cb" class="manage-column column-cb check-column" style=""><input
-                            type="checkbox"></th>
+                <tr>                   
                     <th scope="col" id="title" class="manage-column column-title sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
@@ -889,9 +950,7 @@ class MainWPLinksChecker
                 </thead>
 
                 <tfoot>
-                <tr>
-                    <th scope="col" id="cb" class="manage-column column-cb check-column" style=""><input
-                            type="checkbox"></th>
+                <tr>                    
                     <th scope="col" id="title" class="manage-column column-title sortable desc" style="">
                         <a href="#" onclick="return false;"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
@@ -932,7 +991,7 @@ class MainWPLinksChecker
                             <option value="50">50</option>
                             <option value="100">100</option>
                             <option value="1000000000">All</option>
-                        </select><span> <?php _e('Articles per page','mainwp'); ?></span>
+                        </select><span> <?php _e('Links per page','mainwp'); ?></span>
                     </form>
                 </div>
             </div>
@@ -944,17 +1003,90 @@ class MainWPLinksChecker
         include_once MWP_BROKEN_LINKS_CHECKER_DIR . 'includes/mwp-links-page-js.php';        
     }
     
-    function get_filters($site_id) {
-        if (empty($site_id)) {
+    public static function gen_select_boxs($all_sites, $filter_search, $selected_group, $selected_site) {
+        global $mainWPLinksCheckerExtensionActivator;
+        $groups = apply_filters('mainwp-getgroups', $mainWPLinksCheckerExtensionActivator->getChildFile(), $mainWPLinksCheckerExtensionActivator->getChildKey(), null);        
+        $search = $filter_search
+        ?> 
+                   
+        <div class="alignleft actions">
+            <form action="" method="GET">
+                <input type="hidden" name="page" value="Extensions-Mainwp-Broken-Links-Checker-Extension">
+                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp'); ?></span>
+                <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="sl" autocompletelist="sites" value="<?php echo stripslashes($search); ?>" autocomplete="off">
+                <datalist id="sites">
+                    <?php
+                    if (is_array($all_sites) && count($all_sites) > 0) {
+                        foreach ($all_sites as $website) {                    
+                            echo "<option>" . $website['name']. "</option>";                    
+                        }
+                    }
+                    ?>                
+                </datalist>
+                <input type="submit" name="" class="button" value="<?php _e("Search Sites", "mainwp"); ?>">
+            </form>
+        </div>    
+        
+        <div class="alignleft actions">
+            <form method="post" action="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension">
+                <select name="mainwp_blc_select_site" id="mainwp_blc_select_site">
+                    <option value="0"><?php _e("Select a Site"); ?></option>
+                <?php
+                foreach ($all_sites as $site) {
+                    $_select = "";
+                    if ($site['id'] == intval($selected_site)) {
+                        $_select = "selected";
+                    }                                        
+                ?>
+                    <option value="<?php echo $site['id']; ?>" <?php echo $_select; ?>><?php echo stripslashes($site['name']); ?></option>
+                <?php
+                }
+                ?>
+                </select>
+                <input type="submit" id="mainwp_blc_select_site_btn_display" class="button" value="<?php _e("Display"); ?>" />
+            </form>  
+       </div>                                
+        <div class="alignleft actions">
+            <form method="post" action="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension">
+                <select name="mainwp_blc_links_groups_select">
+                <option value="0"><?php _e("Select a group"); ?></option>
+                <?php
+                if (is_array($groups) && count($groups) > 0) {
+                    foreach ($groups as $group) {
+                        $_select = "";
+                        if ($selected_group == $group['id'])
+                            $_select = 'selected ';                    
+                        echo '<option value="' . $group['id'] . '" ' . $_select . '>' . $group['name'] . '</option>';
+                    }     
+                }
+                ?>
+                </select>                    
+                <input class="button" type="submit" name="mwp_blc_groups_btn_display" id="mwp_blc_groups_btn_display" value="<?php _e("Display", "mainwp"); ?>">
+            </form>  
+        </div>    
+        <?php       
+        return;
+    }
+    
+    function get_filters($websites = null) { 
+        
+        $total = array();
+        if ($websites === null) {
             $total = $this->get_option('total_link_info', array());        
         } else {
-            $data = MainWPLinksCheckerDB::Instance()->getLinksData(array('link_info'), $site_id);
-            $total = unserialize($data->link_info);        
+             if (is_array($websites) && count($websites) > 0) {                  
+                foreach($websites as $site) {                                       
+                    $total['broken'] += isset($site['broken']) ? intval($site['broken']) : 0;
+                    $total['redirects'] += isset($site['redirects']) ? intval($site['redirects']) : 0;
+                    $total['dismissed'] += isset($site['dismissed']) ? intval($site['dismissed']) : 0;
+                    $total['all'] += isset($site['all']) ? intval($site['all']) : 0;   
+                }
+            }        
         }
         
-        if (!is_array($total))
+        if (!is_array($total)) 
             $total = array();
-        
+       
         $filters = array(   
                         'broken' => array( 'name' => __("Broken", 'mainwp'),
                                            'count' => isset($total['broken']) ? $total['broken'] : 0
@@ -972,12 +1104,21 @@ class MainWPLinksChecker
         return $filters;
     }
     
-    function print_filter_menu($current = '', $site_id = ""){
+    function print_filter_menu($current = '', $websites = array(), $filter_search = "", $filter_site = "", $filter_group = ""){
         
-        $filters = $this->get_filters($site_id);
+        if (!empty($filter_search) || !empty($filter_site) || !empty($filter_group))
+            $filters = $this->get_filters($websites);
+        else 
+            $filters = $this->get_filters();
+        
         $str_site = "";
-        if ($site_id)
-            $str_site = "&site_id=" . $site_id;
+        if (!empty($filter_search))
+            $str_site = "&filter_search=" . $filter_search;
+        else if (!empty($filter_site))
+            $str_site = "&site_id=" . $filter_site;
+        else if (!empty($filter_group))
+            $str_site = "&group_id=" . $filter_group;
+        
         
         echo '<ul class="subsubsub">';
         
@@ -1132,10 +1273,7 @@ class MainWPLinksChecker
             $link_text = preg_replace("/src=\".*\/images\/font-awesome\/(.+)/is", 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', $link->link_text);
 
             ?>              
-            <tr valign="top" id="blc-row-<?php echo $link->link_id; ?>-siteid-<?php echo $link->site_id; ?>" class="blc-row link-status-<?php echo $status['code'] ?> <?php echo $rowclass; ?>" <?php echo $rowattr; ?>>
-                <th class="check-column" scope="row">
-                    <input type="checkbox" value="1" name="link[]">
-                </th>
+            <tr valign="top" id="blc-row-<?php echo $link->link_id; ?>-siteid-<?php echo $link->site_id; ?>" class="blc-row link-status-<?php echo $status['code'] ?> <?php echo $rowclass; ?>" <?php echo $rowattr; ?>>                
                 <td class="post-title page-title column-title">
                     <?php self::column_new_url($link); ?>
                 </td>
@@ -1162,7 +1300,7 @@ class MainWPLinksChecker
                     <a href="<?php echo $sites_url[$link->site_id]; ?>" target="_blank"><?php echo $sites_url[$link->site_id]; ?></a><br/>
                     <div class="row-actions">
                         <span class="edit">
-                            <a href="admin.php?page=managesites&dashboard=<?php echo $link->site_id; ?>"><?php _e("Dashboard"); ?></a><br/>                                                       
+                            <a href="admin.php?page=managesites&dashboard=<?php echo $link->site_id; ?>"><?php _e("Dashboard"); ?></a>                                                       
                         </span> | <span class="edit">
                             <a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $link->site_id; ?>"><?php _e("Open WP-Admin");?></a>
                         </span>
@@ -1205,27 +1343,27 @@ class MainWPLinksChecker
             );
 
             //Last checked...
-            if ( $link->last_check != 0 ){
-                    $last_check = _x('Checked', 'checked how long ago', 'broken-link-checker') . ' ';
-                    $last_check .= MainWPLinksCheckerUtility::fuzzy_delta(time() - $link->last_check, 'ago');
-
-                    printf(
-                            '<tr class="link-last-checked"><td>%s</td></tr>',
-                            $last_check
-                    );
-            }
+//            if ( $link->last_check != 0 ){
+//                    $last_check = _x('Checked', 'checked how long ago', 'broken-link-checker') . ' ';
+//                    $last_check .= MainWPLinksCheckerUtility::fuzzy_delta(time() - $link->last_check, 'ago');
+//
+//                    printf(
+//                            '<tr class="link-last-checked"><td>%s</td></tr>',
+//                            $last_check
+//                    );
+//            }
 
 
             //Broken for...
-            if ( $link->broken ){
-                    $delta = time() - $link->first_failure;
-                    $broken_for = MainWPLinksCheckerUtility::fuzzy_delta($delta);
-                    printf(
-                            '<tr class="link-broken-for"><td>%s %s</td></tr>',
-                            __('Broken for', 'broken-link-checker'),
-                            $broken_for
-                    );
-            }
+//            if ( $link->broken ){
+//                    $delta = time() - $link->first_failure;
+//                    $broken_for = MainWPLinksCheckerUtility::fuzzy_delta($delta);
+//                    printf(
+//                            '<tr class="link-broken-for"><td>%s %s</td></tr>',
+//                            __('Broken for', 'broken-link-checker'),
+//                            $broken_for
+//                    );
+//            }
 
             echo '</table>';
     }
@@ -1440,7 +1578,7 @@ class MainWPLinksChecker
         }
     }
     
-    protected function inline_editor($visible_columns = 7) {
+    protected function inline_editor($visible_columns = 6) {
         ?>
         <table style="display: none;"><tbody>
                 <tr id="blc-inline-edit-row" class="blc-inline-editor">

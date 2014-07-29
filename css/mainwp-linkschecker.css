@@ -209,4 +209,10 @@ img.waiting {
 #mainwp-blc-setting-tab-content {
     min-height: 200px;
 }
+#mainwp_blc_links_table .manage-column.column-url {
+    width: 25%;
+}
+.clearfix {
+    clear: both;
+}
 

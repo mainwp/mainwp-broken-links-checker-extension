@@ -141,7 +141,7 @@ class MainWPLinksCheckerDashboard
             if (is_array($websites) && count($websites) > 0) {                
                self::getDashboardTableRow($websites);                  
             } else {
-               _e("<tr><td colspan=\"7\">No websites were found with the Broken Link Checker plugin installed.</td></tr>");
+               _e("<tr><td colspan=\"6\">No websites were found with the Broken Link Checker plugin installed.</td></tr>");
             }
             ?>
            </tbody>
@@ -310,7 +310,7 @@ class MainWPLinksCheckerDashboard
         return $color;
     }            
     
-    public function get_websites_linkschecker($websites, $selected_group = 0, $linkschecker_data) {                       
+    public function get_websites_linkschecker($websites, $selected_group = 0, $search = "", $linkschecker_data) {                       
         $websites_plugin = array();        
         
         if (is_array($websites) && count($websites)) {
@@ -342,8 +342,8 @@ class MainWPLinksCheckerDashboard
         
         // if search action
         $search_sites = array();               
-        if (isset($_GET['s']) && !empty($_GET['s'])) {
-            $find = trim($_GET['s']);
+        if (!empty($search)) {
+            $find = trim($search);
             foreach($websites_plugin as $website ) {                
                 if (stripos($website['name'], $find) !== false || stripos($website['url'], $find) !== false) {
                     $search_sites[] = $website;
@@ -447,7 +447,7 @@ class MainWPLinksCheckerDashboard
                     }     
                 }
                 ?>
-                </select>&nbsp;&nbsp;                     
+                </select>                     
                 <input class="button" type="button" name="mwp_linkschecker_btn_display" id="mwp_linkschecker_btn_display"value="<?php _e("Display", "mainwp"); ?>">
             </form>  
         </div>    
