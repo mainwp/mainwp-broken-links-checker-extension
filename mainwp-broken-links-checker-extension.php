@@ -46,14 +46,7 @@ class MainWPLinksCheckerExtension
     }
 
     public function admin_init()
-    {
-        if (get_option('mainwp_blc_activated') == 'yes')
-        {
-            delete_option('mainwp_blc_activated');
-            wp_redirect(admin_url('admin.php?page=Extensions'));
-            return;
-        }
-        
+    {       
         wp_enqueue_style('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css');
         wp_enqueue_script('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js');        
         MainWPLinksChecker::Instance()->admin_init();             
@@ -84,6 +77,7 @@ class MainWPLinksCheckerExtensionActivator
         {
             add_action('mainwp-activated', array(&$this, 'activate_this_plugin'));
         }
+        add_action('admin_init', array(&$this, 'admin_init'));
         add_action('admin_notices', array(&$this, 'mainwp_error_notice'));
         add_filter('mainwp-getmetaboxes', array(&$this, 'getMetaboxes'));
     }
@@ -93,7 +87,16 @@ class MainWPLinksCheckerExtensionActivator
         $pArray[] = array('plugin' => __FILE__, /*'api' => 'mainwp-broken-links-checker-extension',*/ 'mainwp' => true, 'callback' => array(&$this, 'settings'));
         return $pArray;
     }
- 
+    
+    function admin_init() {
+        if (get_option('mainwp_blc_activated') == 'yes')
+        {
+            delete_option('mainwp_blc_activated');
+            wp_redirect(admin_url('admin.php?page=Extensions'));
+            return;
+        }        
+    }
+    
     function settings()
     {
         do_action('mainwp-pageheader-extensions', __FILE__);
