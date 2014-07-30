@@ -47,6 +47,13 @@ class MainWPLinksCheckerExtension
 
     public function admin_init()
     {
+        if (get_option('mainwp_blc_activated') == 'yes')
+        {
+            delete_option('mainwp_blc_activated');
+            wp_redirect(admin_url('admin.php?page=Extensions'));
+            return;
+        }
+        
         wp_enqueue_style('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css');
         wp_enqueue_script('mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js');        
         MainWPLinksChecker::Instance()->admin_init();             
@@ -143,6 +150,12 @@ class MainWPLinksCheckerExtensionActivator
 
 }
 
+register_activation_hook(__FILE__, 'mainwp_blc_activate');  
+
+function mainwp_blc_activate() {
+    update_option('mainwp_blc_activated', 'yes');
+}
+    
 function mainwp_links_checker_extension_autoload($class_name)
 {
     $allowedLoadingTypes = array('class');
