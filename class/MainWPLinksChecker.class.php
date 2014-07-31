@@ -1644,23 +1644,46 @@ class MainWPLinksChecker
 
     public static function MainWPLinksCheckerQSG() {
         ?>
-         <div  class="mainwp_info-box" id="ps-pth-notice-box"><b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="http://docs.mainwp.com/category/mainwp-extensions/mainwp-page-speed-extension/" target="_blank"><?php echo __('Documentation'); ?></a>. 
+         <div  class="mainwp_info-box" id="ps-pth-notice-box"><b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="http://docs.mainwp.com/category/mainwp-extensions/mainwp-broken-links-checker-extension/" target="_blank"><?php echo __('Documentation'); ?></a>. 
                     <a href="#" id="mainwp-lc-quick-start-guide"><?php _e('Show Quick Start Guide','mainwp'); ?></a></div>
                     <div  class="mainwp_info-box-yellow" id="mainwp-lc-tips" style="color: #333!important; text-shadow: none!important;">
-                      <span><a href="#" class="mainwp-show-tut" number="1"><?php _e('Tut 1','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><?php _e('Tut 2','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><?php _e('Tut 3','mainwp') ?></a></span><span><a href="#" id="mainwp-lc-tips-dismiss" style="float: right;"><?php _e('Dismiss','mainwp'); ?></a></span>
+                      <span><a href="#" class="mainwp-show-tut" number="1"><?php _e('Broken Links Checker Dashboard','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><?php _e('MainWP Broken Links Checker Widgets','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><?php _e('Manage Links with the MainWP Broken Links Checker Extension','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><?php _e('Extension Settings','mainwp') ?></a></span><span><a href="#" id="mainwp-lc-tips-dismiss" style="float: right;"><?php _e('Dismiss','mainwp'); ?></a></span>
                       <div class="clear"></div>
                       <div id="mainwp-lc-tuts">
                         <div class="mainwp-lc-tut" number="1">
-                            <h3>Tut 1</h3>
+                            <h3>Broken Links Checker Dashboard</h3>
+                            <p>From the Broken Links Checker Dashboard page, you can monitor all of your child sites where you have the Broken Links Checker plugin installed. In the sites list, you will be notified if the plugin has an update available or if the plugin is deactivated.</p>
+                            <p>The provided links and bulk actions will allow you to Update and Activate the Plugin.</p>
+                            <p>Also the Broken, Redirects, Dismissed and the All columns will show you the number of checked links. Clicking on the number will show you the list of associated links. You can also hide the Plugin on child sites. Simply by clicking the Hide Broken Links Checker you can hide it on a single site (Show Broken Links Checker for unhiding it), or use bulk actions to hide on multiple sites. Select the sites where you want to hide the plugin, choose the Hide action and click the Apply button.</p>
+                            <p>To unhide the plugin on multiple sites, select the wanted sites, choose the Show action and click the Apply button.</p>
                         </div>
                         <div class="mainwp-lc-tut"  number="2">
-                            <h3>Tut 2</h3>
-                            
+                            <h3>MainWP Broken Links Checker Widgets</h3>
+                            <p>This extension adds the Widget on your Main Dashboard and Individual Site Dashboard.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/07/child-widget.png">
+                            <p>In the individual site dashboard, the widget will show details for the site. It will show you the number of Broken, Redirected, Dismissed and All checked links.</p>
+                            <p>If you click on a number you will drill down a list of checked links.</p>
+                            <p>The Main Dashboard widget shows the overall number of checked links for entire network.</p>
                         </div>
                         <div class="mainwp-lc-tut"  number="3">
-                            <h3>Tut 3</h3>
+                            <h3>Manage Links with the MainWP Broken Links Checker Extension</h3>
+                            <p>The MainWP Broken Links Checker Extension allows you to manage links on your child site directly from your Dashboard.</p>
+                            <p>The Broken Links tab will show you all links from your network. Using the  filters you will be able to get specific links/sites.</p>
+                            <p>Under a link, in the URL column, you will be able to find available actions. Here you can Edit, Unlink/Link and Dismiss links.</p>
+                            <p><strong>Edit URL</strong></p>
+                            <p>To edit a link, click the Edit URL link.</p>
+                            <p>When you are done editing, click the Update button.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/07/blc-edit-1024x220.jpg">
+                            <p><strong>URL Details</strong></p>
+                            <p>By clicking the Status or Link Text column data, you will get the link details.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/07/blc-details-1024x461.jpg">
                         </div>
+                        <div class="mainwp-lc-tut"  number="4">
+                            <h3>Extension Settings</h3>
+                            <p>The Extension settings tab allows you to set how often you want to re-check links on your child sites and gives you the option to force a recheck of your links.</p>
+                            <p><strong>A forced recheck will force the plugin to empty its link database and recheck all links from scratch. After forcing a recheck it may take a few minutes or longer depending on the size of your site until a new links list is generated.</strong></p>
                       </div>
+                    </div>
                     </div>
         <?php
 }
