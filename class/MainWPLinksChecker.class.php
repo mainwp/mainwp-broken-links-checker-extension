@@ -98,7 +98,7 @@ class MainWPLinksChecker
             }
                     
             $link_values = MainWPLinksCheckerDB::Instance()->getLinksData(array('link_info', 'site_id'));
-            $total = array();
+            $total = array('broken' => 0, 'redirects' => 0, 'dismissed' => 0, 'all' => 0);
             if (is_array($link_values)) {
                 foreach($link_values as $value) {
                     if (in_array($value->site_id, $all_sites)) {
