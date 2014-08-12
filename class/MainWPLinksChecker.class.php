@@ -1070,7 +1070,7 @@ class MainWPLinksChecker
     
     function get_filters($websites = null) { 
         
-        $total = array();
+        $total = array('broken' => 0, 'redirects' => 0, 'dismissed' => 0, 'all' => 0);
         if ($websites === null) {
             $total = $this->get_option('total_link_info', array());        
         } else {
