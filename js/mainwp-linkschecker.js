@@ -101,7 +101,7 @@ jQuery(document).ready(function($) {
     
     $('#mwp-blc-save-settings-btn').live('click', function() {
         if ($('#check_threshold').val() <= 0) {
-            $('#mwp-blc-setting-error-box').html(__("Every hour must not be empty")).fadeIn();
+            $('#mwp-blc-setting-error-box').html(__("Check each link can not be empty")).fadeIn();
             return false;
         }       
         
@@ -438,7 +438,7 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
         linkschecker_bulkCurrentThreads--;
         linkschecker_bulkFinishedThreads++;
         if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
-            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Saved Settings to child sites.').fadeIn(100);
+            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Settings saved to child sites.').fadeIn(100);
             setTimeout(function() {
                 location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
             }, 3000);              
@@ -490,7 +490,7 @@ mainwp_linkschecker_settings_recheck_start_specific = function (pSiteToProcess)
         linkschecker_bulkCurrentThreads--;
         linkschecker_bulkFinishedThreads++;
         if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
-            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Started recheck on child sites.').fadeIn(100);
+            jQuery('#mainwp_blc_setting_ajax_message_zone').html('Recheck started on child sites.').fadeIn(100);
             setTimeout(function() {
                 location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
             }, 3000);              

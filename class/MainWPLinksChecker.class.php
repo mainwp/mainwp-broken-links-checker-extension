@@ -779,6 +779,7 @@ class MainWPLinksChecker
     <div class="postbox">
         <h3 class="mainwp_box_title"><span><?php _e("Settings", "mainwp"); ?></span></h3>
         <div class="inside">
+            <div class="mainwp_info-box-yellow"><?php _e('If loading links is taking too long, please visit child site and make sure the Broken Link Checker plugin is recording data properly. If it is not try to disable and re-enable the plugin and try again','mainwp'); ?></div>
         <h4 id="mwp_blc_settings_saving_title" class="hidden-field"><?php _e("Saving settings to child sites ...", "mainwp"); ?></h4>            
         <h4 id="mwp_blc_settings_start_recheck_title" class="hidden-field"><?php _e("Rechecking on child sites ...", "mainwp"); ?></h4>            
         <div class="mainwp_info-box hidden"></div>
