@@ -66,39 +66,7 @@ jQuery(document).ready(function($) {
         mainwp_linkschecker_do_bulk_action(bulk_act);
            
     });  
-    
-    $('#wpps-settings-extension-save-btn').on('click', function() {        
-        var data = { 
-            action: 'mainwp_linkschecker_save_ext_setting',            
-            scoreNoti: $('select[name="mainwp_linkschecker_score_noti"]').val(),
-            scheduleNoti: $('select[name="mainwp_linkschecker_schedule_noti"]').val(),            
-        }
-        var statusEl = $('#mwps-setting-ext-working .status');
-        statusEl.html('');
-        $('#mwps-setting-ext-working .loading').show();
-        jQuery.post(ajaxurl, data, function (response) {
-            $('#mwps-setting-ext-working .loading').hide();            
-            if (response) {
-                if (response == 'SUCCESS') {
-                    statusEl.css('color', '#21759B');
-                    statusEl.html(__('Updated')).show();   
-                    statusEl.fadeOut(3000); 
-                } else if (response['id']) {     
-                    $('#mainwp_linkschecker_site_id').val(response['id']);                
-                    statusEl.css('color', '#21759B');
-                    statusEl.html(__('Updated')).show();   
-                    statusEl.fadeOut(3000); 
-                } else {
-                    statusEl.css('color', 'red');
-                    statusEl.html(__("Update failed")).show();
-                }
-            } else {
-                statusEl.css('color', 'red');
-                statusEl.html(__("Undefined error")).show();
-            } 
-        },'json'); 
-    });
-    
+      
     $('#mwp-blc-save-settings-btn').live('click', function() {
         if ($('#check_threshold').val() <= 0) {
             $('#mwp-blc-setting-error-box').html(__("Check each link can not be empty")).fadeIn();
