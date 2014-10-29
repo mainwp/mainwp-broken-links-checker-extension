@@ -78,8 +78,7 @@ class MainWPLinksCheckerExtensionActivator
             add_action('mainwp-activated', array(&$this, 'activate_this_plugin'));
         }
         add_action('admin_init', array(&$this, 'admin_init'));
-        add_action('admin_notices', array(&$this, 'mainwp_error_notice'));
-        add_filter('mainwp-getmetaboxes', array(&$this, 'getMetaboxes'));
+        add_action('admin_notices', array(&$this, 'mainwp_error_notice'));       
     }
 
     function get_this_extension($pArray)
@@ -128,7 +127,11 @@ class MainWPLinksCheckerExtensionActivator
         if (!$this->childEnabled) return;
 
         $this->childKey = $this->childEnabled['key'];
-
+        
+        if (function_exists("mainwp_current_user_can")&& !mainwp_current_user_can("extension", "mainwp-broken-links-checker-extension"))
+            return;        
+        
+        add_filter('mainwp-getmetaboxes', array(&$this, 'getMetaboxes'));
         new MainWPLinksCheckerExtension();
     }
 
