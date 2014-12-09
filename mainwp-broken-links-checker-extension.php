@@ -55,6 +55,47 @@ class MainWPLinksCheckerExtension
         
 }
  
+   
+function mainwp_links_checker_extension_autoload($class_name)
+{
+    $allowedLoadingTypes = array('class');
+
+    foreach ($allowedLoadingTypes as $allowedLoadingType)
+    {
+        $class_file = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . str_replace(basename(__FILE__), '', plugin_basename(__FILE__)) . $allowedLoadingType . DIRECTORY_SEPARATOR . $class_name . '.' . $allowedLoadingType . '.php';
+        if (file_exists($class_file))
+        {
+            require_once($class_file);
+        }
+    }
+}
+
+if (function_exists('spl_autoload_register'))
+{
+    spl_autoload_register('mainwp_links_checker_extension_autoload');
+}
+else
+{
+    function __autoload($class_name)
+    {
+        mainwp_links_checker_extension_autoload($class_name);
+    }
+}
+
+register_activation_hook(__FILE__, 'mainwp_blc_activate');  
+register_deactivation_hook(__FILE__, 'mainwp_blc_deactivate');  
+
+function mainwp_blc_activate() {
+    update_option('mainwp_blc_activated', 'yes');
+    $extensionActivator = new MainWPLinksCheckerExtensionActivator();
+    $extensionActivator->activate();
+}
+
+function mainwp_blc_deactivate() {
+    $extensionActivator = new MainWPLinksCheckerExtensionActivator();
+    $extensionActivator->deactivate();    
+}
+ 
 
 class MainWPLinksCheckerExtensionActivator
 {
@@ -62,7 +103,11 @@ class MainWPLinksCheckerExtensionActivator
     protected $childEnabled = false;
     protected $childKey = false;
     protected $childFile;
-
+    protected $plugin_handle = "mainwp-broken-links-checker-extension";
+    protected $product_id = "MainWP Broken Links Checker Extension"; 
+    protected $software_version = "0.0.1"; 
+   
+    
     public function __construct()
     {
         $this->childFile = __FILE__;        
@@ -83,7 +128,7 @@ class MainWPLinksCheckerExtensionActivator
 
     function get_this_extension($pArray)
     {
-        $pArray[] = array('plugin' => __FILE__, 'api' => 'mainwp-broken-links-checker-extension', 'mainwp' => true, 'callback' => array(&$this, 'settings'));
+        $pArray[] = array('plugin' => __FILE__, 'api' => $this->plugin_handle, 'mainwp' => true, 'callback' => array(&$this, 'settings'),  'apiManager' => true);
         return $pArray;
     }
     
@@ -153,39 +198,31 @@ class MainWPLinksCheckerExtensionActivator
             echo '<div class="error"><p>MainWP Broken Links Checker Extension ' . __('requires <a href="http://mainwp.com/" target="_blank">MainWP</a> Plugin to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP</a> first.') . '</p></div>';
         }
     }
-
-}
-
-register_activation_hook(__FILE__, 'mainwp_blc_activate');  
-
-function mainwp_blc_activate() {
-    update_option('mainwp_blc_activated', 'yes');
-}
     
-function mainwp_links_checker_extension_autoload($class_name)
-{
-    $allowedLoadingTypes = array('class');
-
-    foreach ($allowedLoadingTypes as $allowedLoadingType)
+    public function update_option($option_name, $option_value)
     {
-        $class_file = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . str_replace(basename(__FILE__), '', plugin_basename(__FILE__)) . $allowedLoadingType . DIRECTORY_SEPARATOR . $class_name . '.' . $allowedLoadingType . '.php';
-        if (file_exists($class_file))
-        {
-            require_once($class_file);
-        }
-    }
-}
+        $success = add_option($option_name, $option_value, '', 'no');
 
-if (function_exists('spl_autoload_register'))
-{
-    spl_autoload_register('mainwp_links_checker_extension_autoload');
-}
-else
-{
-    function __autoload($class_name)
-    {
-        mainwp_links_checker_extension_autoload($class_name);
+         if (!$success)
+         {
+             $success = update_option($option_name, $option_value);
+         }
+
+         return $success;
     }
+    
+    public function activate() {                          
+        $options = array (  'product_id' => $this->product_id,
+                            'activated_key' => 'Deactivated',  
+                            'instance_id' => apply_filters('mainwp-extensions-apigeneratepassword', 12, false),                            
+                            'software_version' => $this->software_version
+                        );               
+        $this->update_option($this->plugin_handle . "_APIManAdder", $options);
+    }
+    
+    public function deactivate() {                                 
+        $this->update_option($this->plugin_handle . "_APIManAdder", '');
+    }  
 }
 
 $mainWPLinksCheckerExtensionActivator = new MainWPLinksCheckerExtensionActivator();
