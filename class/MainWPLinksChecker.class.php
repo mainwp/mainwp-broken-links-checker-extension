@@ -362,8 +362,7 @@ class MainWPLinksChecker
             </div>
             <br class="clearfix">
             <div class="mwp_network_links_checker_detail"><?php _e("Network Links Checker"); ?></div>
-            <br/>
-            <p><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension" class="button button-primary"><?php _e('Broken Links Checker Dashboard','mainwp'); ?></a></p>
+            <div><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension" class="button button-primary"><?php _e('Broken Links Checker Dashboard','mainwp'); ?></a></div>
         </div>
         <?php
     }   
