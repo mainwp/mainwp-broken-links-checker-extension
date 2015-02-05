@@ -19,6 +19,7 @@ Icon URI:
 
 = 0.0.3 =
 * Fixed: Issue with clearing data for deleted sites
+* Added: Extensions documentation URI in the plugin info
 
 = 0.0.2 =
 * Added: Support for the API Manager
