@@ -143,13 +143,10 @@ class MainWPLinksChecker
     }
     
     public function mwp_delete_site($website) 
-    {
-        global $wpdb;
-        if (isset($_POST['submit'])) {            
-            if ($website) {                
-                MainWPLinksCheckerDB::Instance()->deleteLinksChecker('site_id', $website->id);             
-            }
-        }
+    {                      
+        if ($website) {                
+            MainWPLinksCheckerDB::Instance()->deleteLinksChecker('site_id', $website->id);             
+        }        
     }    
     
     public function managesites_column_url($actions, $websiteid) {
