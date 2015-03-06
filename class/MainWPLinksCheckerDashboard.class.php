@@ -46,7 +46,7 @@ class MainWPLinksCheckerDashboard
            $_orderby = $_GET['orderby'];
        }    
        if (isset($_GET['order']) && !empty($_GET['order'])) {            
-           $_order = $_GET['order'];
+           $_order = ($_GET['order'] == "desc") ? "asc" : "desc";
        }        
 
        $site_order = $url_order = $broken_order = $redirects_order = $dismissed_order = $all_order = $version_order = $hidden_order ="";           
@@ -66,6 +66,8 @@ class MainWPLinksCheckerDashboard
            $version_order = ($_order == "desc") ? "asc" : "desc";                     
        } else if ($_orderby == "hidden") {
            $hidden_order = ($_order == "desc") ? "asc" : "desc";                     
+       } else {
+           $_orderby = "name";
        }
                
        self::$order = $_order;
@@ -162,7 +164,7 @@ class MainWPLinksCheckerDashboard
        
        foreach ($websites as $website) {    
            //print_r($website);
-           $website_id = $website['id'];           
+           $website_id = esc_attr($website['id']);
            $cls_active = (isset($website['linkschecker_active']) && !empty($website['linkschecker_active'])) ? "active" : "inactive";
            $cls_update = (isset($website['linkschecker_upgrade'])) ? "update" : "";
            $cls_update = ($cls_active == "inactive") ? "update" : $cls_update;
@@ -175,10 +177,10 @@ class MainWPLinksCheckerDashboard
            if (isset($website['linkschecker_active']) && $website['linkschecker_active']) {
                 $location = "options-general.php?page=link-checker-settings";                   
                 $open_link = ' | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=' . $website_id . '&location=' . base64_encode($location) . '" target="_blank">' . __("Broken Link Checker Settings") . '</a></span>';
-                $broken_link = '<span class="edit"><a href="' . $link_prefix .'broken" >' . $website['broken'] . '</a></span>';
-                $redirects_link = '<span class="edit"><a href="' . $link_prefix .'redirects" >' . $website['redirects'] . '</a></span>';
-                $dismissed_link = '<span class="edit"><a href="' . $link_prefix .'dismissed">' . $website['dismissed'] . '</a></span>';
-                $all_link = '<span class="edit"><a href="' . $link_prefix .'all">' . $website['all'] . '</a></span>';
+                $broken_link = '<span class="edit"><a href="' . $link_prefix .'broken" >' . esc_html($website['broken']) . '</a></span>';
+                $redirects_link = '<span class="edit"><a href="' . $link_prefix .'redirects" >' . esc_html($website['redirects']) . '</a></span>';
+                $dismissed_link = '<span class="edit"><a href="' . $link_prefix .'dismissed">' . esc_html($website['dismissed']) . '</a></span>';
+                $all_link = '<span class="edit"><a href="' . $link_prefix .'all">' . esc_html($website['all']) . '</a></span>';
                 $showhide_link = ' | <a href="#" class="linkschecker_showhide_plugin" showhide="' . $showhide_action . '">'. ($showhide_action === "show" ? __('Show Broken Link Checker Plugin') : __('Hide Broken Link Checker Plugin')) . '</a>';
            }
            
@@ -190,12 +192,12 @@ class MainWPLinksCheckerDashboard
                    <input type="checkbox"  name="checked[]">
                </th>
                <td>
-                   <a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo $website['name']; ?></a><br/>
+                   <a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo esc_html($website['name']); ?></a><br/>
                    <div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e("Dashboard");?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e("Edit");?></a><?php echo $showhide_link; ?></span></div>                    
                    <div class="linkschecker-action-working"><span class="status" style="display:none;"></span><span class="loading" style="display:none;"><img src="<?php echo $url_loader; ?>"> <?php _e("Please wait..."); ?></span></div>
                </td>
                <td>
-                   <a href="<?php echo $website['url']; ?>" target="_blank"><?php echo $website['url']; ?></a><br/>
+                   <a href="<?php echo esc_attr($website['url']); ?>" target="_blank"><?php echo esc_html($website['url']); ?></a><br/>
                    <div class="row-actions"><span class="edit"><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><?php _e("Open WP-Admin");?></a></span><?php echo $open_link; ?></div>                    
                </td>
               
@@ -253,7 +255,7 @@ class MainWPLinksCheckerDashboard
                  <tr class="plugin-update-tr">
                      <td colspan="9" class="plugin-update">
                          <?php if (!empty($link_row)) { ?>
-                         <div class="ext-upgrade-noti update-message" plugin-slug="<?php echo $plugin_slug; ?>" website-id="<?php echo $website_id; ?>" version="<?php echo $version; ?>">
+                         <div class="ext-upgrade-noti update-message" plugin-slug="<?php echo $plugin_slug; ?>" website-id="<?php echo $website_id; ?>" version="<?php echo esc_attr($version); ?>">
                              <span style="float:right"><a href="#" class="mwp-linkschecker-upgrade-noti-dismiss"><?php _e("Dismiss"); ?></a></span>                    
                              <?php echo $link_row; ?>
                              <span class="linkschecker-row-working"><span class="status"></span><img class="hidden-field" src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>"/></span>
@@ -420,7 +422,7 @@ class MainWPLinksCheckerDashboard
             <form action="" method="GET">
                 <input type="hidden" name="page" value="Extensions-Mainwp-Broken-Links-Checker-Extension">
                 <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp'); ?></span>
-                <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes($search); ?>" autocomplete="off">
+                <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo esc_attr(stripslashes($search)); ?>" autocomplete="off">
                 <datalist id="sites">
                     <?php
                     if (is_array($websites) && count($websites) > 0) {
@@ -443,7 +445,7 @@ class MainWPLinksCheckerDashboard
                         $_select = "";
                         if ($selected_group == $group['id'])
                             $_select = 'selected ';                    
-                        echo '<option value="' . $group['id'] . '" ' . $_select . '>' . $group['name'] . '</option>';
+                        echo '<option value="' . esc_attr($group['id']) . '" ' . $_select . '>' . esc_html($group['name']) . '</option>';
                     }     
                 }
                 ?>

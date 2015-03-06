@@ -127,7 +127,7 @@ PRIMARY KEY  (`id`)  ';
             return null;
         $where = "";
         if ($active !== null)
-            $where = " AND active = " . $active;
+            $where = " AND active = " . intval($active);
         
         $sql = "";
         if ($by == 'id') {

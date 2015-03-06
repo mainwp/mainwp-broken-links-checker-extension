@@ -1,7 +1,7 @@
 <script type='text/javascript'>
 var blc_is_broken_filter = <?php echo isset($_GET['filter_id']) && $_GET['filter_id'] == 'broken' ? 'true' : 'false'; ?>;
-var blc_current_base_filter = '<?php echo isset($_GET['filter_id']) && !empty($_GET['filter_id']) ? $_GET['filter_id'] : 'all'; ?>';
-var blc_current_base_site_id = '<?php echo isset($_GET['site_id']) && !empty($_GET['site_id']) ? $_GET['site_id'] : ''; ?>';
+var blc_current_base_filter = '<?php echo isset($_GET['filter_id']) && !empty($_GET['filter_id']) ? esc_attr($_GET['filter_id']) : 'all'; ?>';
+var blc_current_base_site_id = '<?php echo isset($_GET['site_id']) && !empty($_GET['site_id']) ? esc_attr($_GET['site_id']) : ''; ?>';
 
 function mwp_alterLinkCounter(factor, filterId){
 	var counter;

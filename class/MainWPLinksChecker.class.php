@@ -376,7 +376,7 @@ class MainWPLinksChecker
         $links_info = unserialize($lc->link_info);
         $broken = $redirects = $dismissed = $all = 0;
         $broken_link = $redirects_link = $dismissed_link = $all_link = "";
-        $link_prefix = "admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&site_id=" . $site_id . "&filter_id=";        
+        $link_prefix = esc_attr("admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&site_id=" . $site_id . "&filter_id=");
         if (is_array($links_info) && $lc->active) {
             $broken = isset($links_info['broken']) ? $links_info['broken'] : 0; 
             $redirects = isset($links_info['redirects']) ? $links_info['redirects'] : 0;
@@ -1133,7 +1133,7 @@ class MainWPLinksChecker
                         $number_class .= ' current-link-count';
                 }
 
-                $items[] = "<li><a href='admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=$filter$str_site' {$class}>
+                $items[] = "<li><a href='admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=".$filter.esc_attr($str_site)."' {$class}>
                         {$data['name']}</a> <span class='count'>(<span class='$number_class'>{$data['count']}</span>)</span>";
         }
         echo implode(' |</li>', $items);
