@@ -365,7 +365,7 @@ mainwp_linkschecker_save_settings_start_next = function()
     if (linkschecker_bulkTotalThreads == 0)
         linkschecker_bulkTotalThreads = jQuery('.mainwpProccessSitesItem[status="queue"]').length;
 		
-    while ((siteToProcess = jQuery('.mainwpProccessSitesItem[status="queue"]:first')) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < branding_MaxThreads))
+    while ((siteToProcess = jQuery('.mainwpProccessSitesItem[status="queue"]:first')) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < linkschecker_bulkMaxThreads))
     {                  
         mainwp_linkschecker_save_settings_start_specific(siteToProcess);
     }	
@@ -420,7 +420,7 @@ mainwp_linkschecker_settings_recheck_start_next = function()
     if (linkschecker_bulkTotalThreads == 0)
         linkschecker_bulkTotalThreads = jQuery('.mainwpProccessSitesItem[status="queue"]').length;
 		
-    while ((siteToProcess = jQuery('.mainwpProccessSitesItem[status="queue"]:first')) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < branding_MaxThreads))
+    while ((siteToProcess = jQuery('.mainwpProccessSitesItem[status="queue"]:first')) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < linkschecker_bulkMaxThreads))
     {                  
         mainwp_linkschecker_settings_recheck_start_specific(siteToProcess);
     }	
