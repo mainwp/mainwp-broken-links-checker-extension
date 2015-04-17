@@ -1641,11 +1641,18 @@ class MainWPLinksChecker
     }
 
     public static function MainWPLinksCheckerQSG() {
+    $plugin_data =  get_plugin_data( MAINWP_BROKEN_LINKS_CHECKER_FILE, false );         
+    $description = $plugin_data['Description'];
+    $extraHeaders = array('DocumentationURI' => 'Documentation URI');
+    $file_data = get_file_data(MAINWP_BROKEN_LINKS_CHECKER_FILE, $extraHeaders);
+    $documentation_url  = $file_data['DocumentationURI'];
         ?>
-         <div  class="mainwp_info-box" id="ps-pth-notice-box"><b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="http://docs.mainwp.com/category/mainwp-extensions/mainwp-broken-links-checker-extension/" target="_blank"><?php echo __('Documentation'); ?></a>. 
-                    <a href="#" id="mainwp-lc-quick-start-guide"><?php _e('Show Quick Start Guide','mainwp'); ?></a></div>
-                    <div  class="mainwp_info-box-yellow" id="mainwp-lc-tips" style="color: #333!important; text-shadow: none!important;">
-                      <span><a href="#" class="mainwp-show-tut" number="1"><?php _e('Broken Links Checker Dashboard','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><?php _e('MainWP Broken Links Checker Widgets','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><?php _e('Manage Links with the MainWP Broken Links Checker Extension','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><?php _e('Extension Settings','mainwp') ?></a></span><span><a href="#" id="mainwp-lc-tips-dismiss" style="float: right;"><?php _e('Dismiss','mainwp'); ?></a></span>
+         <div  class="mainwp_ext_info_box" id="ps-pth-notice-box">
+            <div class="mainwp-ext-description"><?php echo $description; ?></div><br/>
+            <b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="<?php echo $documentation_url; ?>" target="_blank"><i class="fa fa-book"></i> <?php echo __('Documentation'); ?></a>. 
+                    <a href="#" id="mainwp-lc-quick-start-guide"><i class="fa fa-info-circle"></i> <?php _e('Show Quick Start Guide','mainwp'); ?></a></div>
+                    <div  class="mainwp_ext_info_box" id="mainwp-lc-tips" style="color: #333!important; text-shadow: none!important;">
+                      <span><a href="#" class="mainwp-show-tut" number="1"><i class="fa fa-book"></i> <?php _e('Broken Links Checker Dashboard','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><i class="fa fa-book"></i> <?php _e('MainWP Broken Links Checker Widgets','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><i class="fa fa-book"></i> <?php _e('Manage Links with the MainWP Broken Links Checker Extension','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><i class="fa fa-book"></i> <?php _e('Extension Settings','mainwp') ?></a></span><span><a href="#" id="mainwp-lc-tips-dismiss" style="float: right;"><i class="fa fa-times-circle"></i> <?php _e('Dismiss','mainwp'); ?></a></span>
                       <div class="clear"></div>
                       <div id="mainwp-lc-tuts">
                         <div class="mainwp-lc-tut" number="1">

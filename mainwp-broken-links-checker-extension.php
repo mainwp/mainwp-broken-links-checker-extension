@@ -10,6 +10,10 @@ Documentation URI: http://docs.mainwp.com/category/mainwp-extensions/mainwp-brok
 Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/07/mainwp-broken-links-checker-extension.png
 */
 
+if (!defined('MAINWP_BROKEN_LINKS_CHECKER_FILE')) {
+    define('MAINWP_BROKEN_LINKS_CHECKER_FILE', __FILE__);
+}
+
 if (!defined('MWP_BROKEN_LINKS_CHECKER_DIR'))
     define ('MWP_BROKEN_LINKS_CHECKER_DIR', plugin_dir_path(__FILE__));
 
