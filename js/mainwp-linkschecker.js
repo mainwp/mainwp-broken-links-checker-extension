@@ -75,7 +75,8 @@ jQuery(document).ready(function($) {
         
         var data = { 
             action: 'mainwp_linkschecker_settings_loading_sites',
-            check_threshold: $('#check_threshold').val()
+            check_threshold: $('#check_threshold').val(),
+            max_number_of_links: $('#max_number_of_links').val()                
         }
         
         var me = $(this);

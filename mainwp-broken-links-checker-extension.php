@@ -94,6 +94,7 @@ function mainwp_blc_activate() {
     update_option('mainwp_blc_activated', 'yes');
     $extensionActivator = new MainWPLinksCheckerExtensionActivator();
     $extensionActivator->activate();
+    update_option('mainwp_blc_max_number_of_links', 10);
 }
 
 function mainwp_blc_deactivate() {

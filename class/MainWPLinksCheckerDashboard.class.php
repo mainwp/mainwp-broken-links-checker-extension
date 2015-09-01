@@ -82,28 +82,28 @@ class MainWPLinksCheckerDashboard
                <input type="checkbox"  id="cb-select-all-2" >
            </th>
            <th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><?php _e('Site','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>            
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $broken_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=broken&order=<?php echo (empty($broken_order) ? 'asc' : $broken_order); ?>"><span><?php _e('Broken','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=broken&order=<?php echo (empty($broken_order) ? 'asc' : $broken_order); ?>"><span><?php _e('Broken','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>       
             <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $redirects_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=redirects&order=<?php echo (empty($redirects_order) ? 'asc' : $redirects_order); ?>"><span><?php _e('Redirects','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=redirects&order=<?php echo (empty($redirects_order) ? 'asc' : $redirects_order); ?>"><span><?php _e('Redirects','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>  
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $dismissed_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=dismissed&order=<?php echo (empty($dismissed_order) ? 'asc' : $dismissed_order); ?>"><span><?php _e('Dismissed','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=dismissed&order=<?php echo (empty($dismissed_order) ? 'asc' : $dismissed_order); ?>"><span><?php _e('Dismissed','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th> 
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $all_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=all&order=<?php echo (empty($all_order) ? 'asc' : $all_order); ?>"><span><?php _e('All','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=all&order=<?php echo (empty($all_order) ? 'asc' : $all_order); ?>"><span><?php _e('All','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>           
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>           
            <th style="text-align: center;" scope="col" class="manage-column <?php echo $hidden_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=hidden&order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=hidden&order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>
          </tr>
          </thead>
@@ -113,28 +113,28 @@ class MainWPLinksCheckerDashboard
                <input type="checkbox"  id="cb-select-all-2" >
            </th>
            <th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><?php _e('Site','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>            
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $broken_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=broken&order=<?php echo (empty($broken_order) ? 'asc' : $broken_order); ?>"><span><?php _e('Broken','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=broken&order=<?php echo (empty($broken_order) ? 'asc' : $broken_order); ?>"><span><?php _e('Broken','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>             
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $redirects_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=redirects&order=<?php echo (empty($redirects_order) ? 'asc' : $redirects_order); ?>"><span><?php _e('Redirects','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=redirects&order=<?php echo (empty($redirects_order) ? 'asc' : $redirects_order); ?>"><span><?php _e('Redirects','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>             
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $dismissed_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=dismissed&order=<?php echo (empty($dismissed_order) ? 'asc' : $dismissed_order); ?>"><span><?php _e('Dismissed','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=dismissed&order=<?php echo (empty($dismissed_order) ? 'asc' : $dismissed_order); ?>"><span><?php _e('Dismissed','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th> 
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $all_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=all&order=<?php echo (empty($all_order) ? 'asc' : $all_order); ?>"><span><?php _e('All','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=all&order=<?php echo (empty($all_order) ? 'asc' : $all_order); ?>"><span><?php _e('All','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>           
            <th style="text-align: center;" scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>           
            <th style="text-align: center;" scope="col" class="manage-column <?php echo $hidden_order; ?>">
-               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=hidden&order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Broken-Links-Checker-Extension&orderby=hidden&order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp-broken-links-checker-extension'); ?></span><span class="sorting-indicator"></span></a>
            </th>
          </tr>
          </tfoot>
@@ -370,8 +370,30 @@ class MainWPLinksCheckerDashboard
                     else 
                         $site['linkschecker_active'] = 0;      
                     
+                    $max_results = get_option('mainwp_blc_max_number_of_links', 10);                     
                     $links_data = isset($linkschecker_data[$site['id']]) ? $linkschecker_data[$site['id']] : array();
-                    $site['link_data'] = unserialize($links_data['link_data']);
+                    $linkData = unserialize($links_data['link_data']);                                        
+                    $site['link_data'] = array();
+                    if (is_array($linkData) && (count($linkData) > 0)) {   
+                        if (isset($_GET['site_id']) && !empty($_GET['site_id'])) {
+                            $site['link_data'] = $linkData;
+                        } else {  // optimize load huge data                                                       
+                            if (!empty($max_results)) {
+                                $count = 0;
+                                if (count($linkData) <= $max_results) { // compatible 
+                                    foreach($linkData as $link) {
+                                        $site['link_data'][] = $link;
+                                        $count++;
+                                        if ($count >= $max_results)
+                                            break;
+                                    }
+                                }
+                            } else {
+                                $site['link_data'] = $linkData;
+                            }
+                        } 
+                    }
+                    
                     $site['hide_linkschecker'] = isset($links_data['hide_plugin']) && $links_data['hide_plugin'] ? 1 : 0;                    
                     $link_info = unserialize($links_data['link_info']);
                     //print_r($links_data);                    
@@ -415,13 +437,13 @@ class MainWPLinksCheckerDashboard
                 <option value="hide-selected"><?php _e("Hide"); ?></option>
                 <option value="show-selected"><?php _e("Show"); ?></option>
             </select>
-            <input type="button" value="<?php _e("Apply"); ?>" class="button action" id="mwp_linkschecker_doaction_btn" name="">
+            <input type="button" value="<?php _e("Apply"); ?>" class="button action" id="mwp_linkschecker_doaction_btn" name="">            
         </div>
                    
         <div class="alignleft actions">
             <form action="" method="GET">
                 <input type="hidden" name="page" value="Extensions-Mainwp-Broken-Links-Checker-Extension">
-                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp'); ?></span>
+                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp-broken-links-checker-extension'); ?></span>
                 <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo esc_attr(stripslashes($search)); ?>" autocomplete="off">
                 <datalist id="sites">
                     <?php
