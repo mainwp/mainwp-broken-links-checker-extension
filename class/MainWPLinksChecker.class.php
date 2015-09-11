@@ -1479,7 +1479,7 @@ class MainWPLinksChecker
     }
     
     function column_source($link, $website) {       
-        if (issset($link->source_data) && is_array($link->source_data)) {
+        if (isset($link->source_data) && is_array($link->source_data)) {
             if ($link->container_type == 'comment') {                
                 $image = "";
                 if (isset($link->source_data['image'])) {
