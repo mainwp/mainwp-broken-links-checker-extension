@@ -770,7 +770,7 @@ class MainWPLinksChecker
     }
     
     static function gen_settings_tab() {
-        $check_threshold = MainWPLinksChecker::Instance()->get_option('check_threshold');
+        $check_threshold = MainWPLinksChecker::Instance()->get_option('check_threshold', 72);
     ?>
     <br>
     <div class="mainwp_info-box-red hidden-field" id="mwp-blc-setting-error-box"></div>
@@ -1270,11 +1270,11 @@ class MainWPLinksChecker
             $rowattr = sprintf(
                 ' data-days-broken="%d" data-can-edit-url="%d" data-can-edit-text="%d"%s ',
                  $link->days_broken,
-                 $link->can_edit_url ? 1 : 0,
-                 $link->can_edit_text ? 1 : 0,
+                 isset($link->can_edit_url) && !empty($link->can_edit_url) ?  1 : 0,
+                 isset($link->can_edit_text) && !empty($link->can_edit_text) ? 1 : 0,
                  $data_link_text
             );
-           
+            
             $link_text = preg_replace("/src=\".*\/images\/font-awesome\/(.+)/is", 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', $link->link_text);
 
             ?>              
@@ -1479,7 +1479,7 @@ class MainWPLinksChecker
     }
     
     function column_source($link, $website) {       
-        if (is_array($link->source_data)) {
+        if (issset($link->source_data) && is_array($link->source_data)) {
             if ($link->container_type == 'comment') {                
                 $image = "";
                 if (isset($link->source_data['image'])) {
