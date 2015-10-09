@@ -1,94 +1,94 @@
 #mainwp-linkschecker-settings tr.check-report label {
-    width: 200px;
-    display: inline-block;
+	width: 200px;
+	display: inline-block;
 }
 
 #mainwp_widget_linkschecker_content{
-    text-align: center;
+	text-align: center;
 }
 
 #mwps-setting-ext-working .status {
-    font-style: italic;
+	font-style: italic;
 }
 
 #mainwp-lc-tips {
-    display: none;
+	display: none;
 }
 .mainwp-lc-tut, #mainwp-lc-tips {
-    display: none;
+	display: none;
 }
 #mainwp_managesites_content table th.column-score_desktop, #mainwp_managesites_content table th.column-score_mobile,
 #mainwp_managesites_content table tr td.column-score_desktop, #mainwp_managesites_content table tr td.column-score_mobile{
-   text-align: center; 
+	text-align: center;
 }
 .mwp_lc_count_links {
-    float: left;
-    margin: 40px 5px 10px;
-    width: 23%;
-    font-size: 16px;
-    text-transform: uppercase;
+	float: left;
+	margin: 40px 5px 10px;
+	width: 23%;
+	font-size: 16px;
+	text-transform: uppercase;
 }
 .mwp_lc_count_links .number {
-    display: inline-block;
-    font-size: 40px;
-    margin: 0 0 25px;
+	display: inline-block;
+	font-size: 40px;
+	margin: 0 0 25px;
 }
 .mwp_lc_count_links.all {
-    color: #7fb100;
+	color: #7fb100;
 }
 .mwp_lc_count_links.dismissed {
-    color: #0074a2;
+	color: 10074a2;
 }
 .mwp_lc_count_links.broken {
-    color: red;
+	color: red;
 }
 .mwp_links_checker_detail {
-    background: none repeat scroll 0 0 #7fb100;
-    height: 2em;
-    margin: 2em auto 1em;
-    padding: 0.5em 2em;
-    text-align: center;
-    vertical-align: middle;
-    width: 60%;
+	background: none repeat scroll 0 0 #7fb100;
+	height: 2em;
+	margin: 2em auto 1em;
+	padding: 0.5em 2em;
+	text-align: center;
+	vertical-align: middle;
+	width: 60%;
 }
 
 .mwp_links_checker_detail a {
-    color: #fff;
-    font-size: 16px;
-    display: inline-block;
+	color: #fff;
+	font-size: 16px;
+	display: inline-block;
 }
 
 .mwp_network_links_checker_detail {
-    text-transform: uppercase;
-    font-size: 16px;
-    margin: 25px 0 20px;
+	text-transform: uppercase;
+	font-size: 16px;
+	margin: 25px 0 20px;
 }
 
 .mwp-blc-url-editor-buttons {
-    display: none;
-    margin-left: 12px;
-    margin-top: 2px;
-    width: 95%;
+	display: none;
+	margin-left: 12px;
+	margin-top: 2px;
+	width: 95%;
 }
 
 
 .color-code-link-status td.column-title {
-    word-wrap: normal;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
-    overflow: hidden;
+	word-wrap: normal;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	overflow: hidden;
 }
 .color-code-link-status td.mwp-column-status {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 td.mwp-column-link-text, td.mwp-column-new-link-text {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .blc-redirect .blc-link-url {
-    background-image: url("../images/blue_dot.png");
+	background-image: url("../images/blue_dot.png");
 }
 
 
@@ -112,7 +112,7 @@ td.mwp-column-link-text, td.mwp-column-new-link-text {
 .color-code-link-status .mini-status .http-code,
 .color-code-link-status .mini-status .status-text
 {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .color-code-link-status  .link-status-unknown td.mwp-column-status .status-text,
@@ -131,108 +131,108 @@ td.mwp-column-link-text, td.mwp-column-new-link-text {
 .color-code-link-status  .link-status-info td.mwp-column-status .status-text,
 .color-code-link-status  .link-status-info td.mwp-column-status .http-code
 {
-    color: blue;
+	color: blue;
 }
 
 .color-code-link-status  .link-status-warning td.mwp-column-status .status-text,
 .color-code-link-status  .link-status-warning td.mwp-column-status .http-code
 {
-    color: #FF8C00; /*#FFA500*/
+	color: #FF8C00; /*#FFA500*/
 }
 
 .color-code-link-status  .link-status-error td.mwp-column-status .status-text,
 .color-code-link-status  .link-status-error td.mwp-column-status .http-code
 {
-    color: red;
+	color: red;
 }
 
 tr.blc-link-details {
-    display: none;
+	display: none;
 }
 .link-last-checked {
-    color: gray;
+	color: gray;
 }
 .blc-small-image {
-    vertical-align: middle;
+	vertical-align: middle;
 }
 
 td.column-redirect-url
 {
 	overflow:  hidden;
 	-o-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	word-wrap: normal;
 }
 .blc-inline-editor-content {
-    max-width: 600px;
+	max-width: 600px;
 }
 
 .blc-inline-editor .blc-input-text-wrap input[type="text"] {
-    width: 100%;
+	width: 100%;
 }
 .blc-inline-editor label span.title {
-    display: block;
-    float: left;
-    width: 5em;
+	display: block;
+	float: left;
+	width: 5em;
 }
 .blc-inline-editor span.title {
-    line-height: 1.8em;
+	line-height: 1.8em;
 }
 .blc-inline-editor .blc-input-text-wrap {
-    display: block;
-    margin-left: 5em;
+	display: block;
+	margin-left: 5em;
 }
 
 img.waiting {
-    float: right;
-    padding: 4px 8px 0;
-    vertical-align: top;
+	float: right;
+	padding: 4px 8px 0;
+	vertical-align: top;
 }
 
 
 .mini-status, .mini-status th, .mini-status td {
-    border: 0 none;
-    color: gray;
-    font-size: 1em;
-    padding: 0;
+	border: 0 none;
+	color: gray;
+	font-size: 1em;
+	padding: 0;
 }
 .blc-link-url {
-    background-image: none;
-    background-position: left center;
-    background-repeat: no-repeat;
-    overflow: hidden;
-    padding-left: 16px;
+	background-image: none;
+	background-position: left center;
+	background-repeat: no-repeat;
+	overflow: hidden;
+	padding-left: 16px;
 }
 .blc-row .working-status {
-    white-space: normal;
+	white-space: normal;
 }
 #mainwp-blc-setting-tab-content {
-    min-height: 200px;
+	min-height: 200px;
 }
 #mainwp_blc_links_table .manage-column.column-url {
-    width: 25%;
+	width: 25%;
 }
 #mainwp_blc_links_table .manage-column.column-title {
-    width: 30%;
+	width: 30%;
 }
 
 #mainwp_blc_links_table td.column-title .row-actions {
-    margin-left: 16px;
+	margin-left: 16px;
 }
 
 .clearfix {
-    clear: both;
+	clear: both;
 }
 
 .mainwp_ext_info_box {
-    background-color: #fff;
-    border: 1px Solid #e5e5e5;
-    padding: 1em;
-    margin-bottom: 1em;
-    text-decoration: none !important;
+	background-color: #fff;
+	border: 1px Solid #e5e5e5;
+	padding: 1em;
+	margin-bottom: 1em;
+	text-decoration: none !important;
 }
 
 .mainwp_ext_info_box a {
-    text-decoration: none !important;
+	text-decoration: none !important;
 }
