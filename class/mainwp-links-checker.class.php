@@ -177,12 +177,12 @@ class MainWP_Links_Checker
 							'link_data' => serialize( $link_data ),
 							'active' => 1,
 							);
-			$out = MainWP_Links_Checker_DB::get_instance()->updateLinkschecker( $update );
+			$out = MainWP_Links_Checker_DB::get_instance()->update_links_checker( $update );
 			//print_r($out);
 			//print_r($update);
 			//print_r($information);
 		} else {
-			 MainWP_Links_Checker_DB::get_instance()->updateLinkschecker( array( 'site_id' => $website_id, 'active' => 0 ) );
+			 MainWP_Links_Checker_DB::get_instance()->update_links_checker( array( 'site_id' => $website_id, 'active' => 0 ) );
 		}
 		update_option( 'mainwp_blc_refresh_total_link_info', 1 );
 	}
