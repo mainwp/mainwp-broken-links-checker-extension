@@ -442,7 +442,7 @@ class MainWP_Links_Checker_Dashboard
                     <?php
 					if ( is_array( $websites ) && count( $websites ) > 0 ) {
 						foreach ( $websites as $website ) {
-							echo '<option>' . $website['name']. '</option>';
+							echo '<option>' . stripslashes( $website['name'] ) . '</option>';
 						}
 					}
 					?>                

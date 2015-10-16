@@ -271,7 +271,7 @@ class MainWP_Links_Checker
 		if ( is_array( $dbwebsites ) && count( $dbwebsites ) > 0 ) {
 			$html = '<input type="hidden" id="mainwp-blc-setting-check_threshold" value="' . $check_threshold . '">';
 			foreach ( $dbwebsites as $site ) {
-				$html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . $site->name. '</strong>: <span class="status"></span></div>';
+				$html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . stripslashes( $site->name ). '</strong>: <span class="status"></span></div>';
 			}
 			$html .= '<br><div id="mainwp_blc_setting_ajax_message_zone" class="mainwp_info-box-yellow hidden-field"></div>';
 			die( json_encode( array( 'success' => true, 'result' => $html ) ) );
@@ -296,7 +296,7 @@ class MainWP_Links_Checker
 		//print_r($dbwebsites);
 		if ( is_array( $dbwebsites ) && count( $dbwebsites ) > 0 ) {
 			foreach ( $dbwebsites as $site ) {
-				$html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . $site->name. '</strong>: <span class="status"></span></div>';
+				$html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . stripslashes( $site->name ) . '</strong>: <span class="status"></span></div>';
 			}
 			$html .= '<br><div id="mainwp_blc_setting_ajax_message_zone" class="mainwp_info-box-yellow hidden-field"></div>';
 			die( json_encode( array( 'success' => true, 'result' => $html ) ) );
@@ -1035,7 +1035,7 @@ class MainWP_Links_Checker
                     <?php
 					if ( is_array( $all_sites ) && count( $all_sites ) > 0 ) {
 						foreach ( $all_sites as $website ) {
-							echo '<option>' . $website['name']. '</option>';
+							echo '<option>' . stripslashes( $website['name'] ) . '</option>';
 						}
 					}
 					?>                
