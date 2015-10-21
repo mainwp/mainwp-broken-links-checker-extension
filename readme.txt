@@ -17,7 +17,7 @@ Icon URI:
 
 == Changelog ==
 
-= 0.0.6 = 
+= 0.0.6 = 9-11-2015
 * Fixed: Layout issue on the Links page
 * Added: An option to limit a number of links returned from child sites
 
