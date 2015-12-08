@@ -87,6 +87,8 @@ function mainwp_blc_activate() {
 	update_option( 'mainwp_blc_activated', 'yes' );
 	$extensionActivator = new MainWP_Links_Checker_Extension_Activator();
 	$extensionActivator->activate();
+	$plugin_slug = plugin_basename(__FILE__);  	
+	do_action('mainwp_enable_extension', $plugin_slug);
 }
 
 function mainwp_blc_deactivate() {
