@@ -1,10 +1,10 @@
 === MainWP Broken Links Checker Extension ===
 Plugin Name: MainWP Broken Links Checker Extension
-Plugin URI: http://extensions.mainwp.com
+Plugin URI: https://mainwp.com
 Description: MainWP Broken Links Checker Extension allows you to scan and fix broken links on your child sites. Requires the MainWP Dashboard Plugin.
 Version: 0.0.6
 Author: MainWP
-Author URI: 
+Author URI: https://mainwp.com
 Icon URI: 
 
 == Installation ==
