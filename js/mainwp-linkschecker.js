@@ -367,8 +367,7 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
 
 	var data = {
 		action:'mainwp_linkschecker_performsavelinkscheckersettings',
-		siteId: pSiteToProcess.attr( 'siteid' ),
-		check_threshold: jQuery( '#mainwp-blc-setting-check_threshold' ).val()
+		siteId: pSiteToProcess.attr( 'siteid' ),		
 	};
 
 	jQuery.post(ajaxurl, data, function (response)

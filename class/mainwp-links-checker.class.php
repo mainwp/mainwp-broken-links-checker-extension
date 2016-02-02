@@ -269,7 +269,7 @@ class MainWP_Links_Checker
 		}
 		//print_r($dbwebsites);
 		if ( is_array( $dbwebsites ) && count( $dbwebsites ) > 0 ) {
-			$html = '<input type="hidden" id="mainwp-blc-setting-check_threshold" value="' . $check_threshold . '">';
+			$html = '';
 			foreach ( $dbwebsites as $site ) {
 				$html .= '<div class="mainwpProccessSitesItem" status="queue" siteid="' . $site->id . '"><strong>' . stripslashes( $site->name ). '</strong>: <span class="status"></span></div>';
 			}
@@ -305,27 +305,42 @@ class MainWP_Links_Checker
 		}
 	}
 
-
 	public function ajax_settings_perform_save() {
-
-		$siteid = $_POST['siteId'];
-		$check_threshold = $_POST['check_threshold'];
-
+		$siteid = $_POST['siteId'];		
 		if ( empty( $siteid ) ) {
-			die( json_encode( array( 'error' => 'Error: site_id empty' ) ) ); }
-
+			die( json_encode( array( 'error' => 'Error: site_id empty' ) ) ); 			
+		}		
+		$information = $this->perform_save_settings($siteid);		
+		die( json_encode( $information ) );
+	}
+	
+	
+	function mainwp_apply_plugin_settings($siteid) {		
+		$information = $this->perform_save_settings($siteid);		
+		$return = array();
+		if (is_array($information)) {
+			if ($information['result'] == 'NOTCHANGE' || $information['result'] == 'SUCCESS') {
+				$return = array('result' => 'success');
+			} else if ($information['error']) {
+				$return = array('error' => $information['error']);				
+			} else {
+				$return = array('result' => 'failed');
+			}			
+		} else {
+			$return = array('result' => 'failed');
+		}			
+		die( json_encode( $return ) );
+	}
+	
+	function perform_save_settings($siteid) {
 		global $mainWPLinksCheckerExtensionActivator;
-
+		$check_threshold = MainWP_Links_Checker::get_instance()->get_option( 'check_threshold', 72 );				
 		$post_data = array( 'mwp_action' => 'save_settings' );
 		$post_data['check_threshold'] = $check_threshold;
 		$post_data['max_number_of_links'] = get_option( 'mainwp_blc_max_number_of_links', 50 );
 		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->get_child_file(), $mainWPLinksCheckerExtensionActivator->get_child_key(), $siteid, 'links_checker', $post_data );
-
-		//unset($information['data']);
-		die( json_encode( $information ) );
+		return $information;
 	}
-
-
 
 	public function ajax_perform_recheck() {
 

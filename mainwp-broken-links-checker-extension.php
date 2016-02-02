@@ -33,7 +33,8 @@ class MainWP_Links_Checker_Extension
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-
+		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );
+		add_action( 'mainwp_applypluginsettings_mainwp-broken-links-checker-extension', array( MainWP_Links_Checker::get_instance(), 'mainwp_apply_plugin_settings' ), 10, 1 );
 		MainWP_Links_Checker_DB::get_instance()->install();
 
 	}
@@ -47,6 +48,12 @@ class MainWP_Links_Checker_Extension
 
 		if ( $this->plugin_slug != $plugin_file ) { return $plugin_meta; }
 
+		$slug = basename($plugin_file, ".php");
+		$api_data = get_option( $slug. '_APIManAdder');		
+		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated' || !isset($api_data['api_key']) || empty($api_data['api_key']) ) {
+			return $plugin_meta;
+		}
+		
 		$plugin_meta[] = '<a href="?do=checkUpgrade" title="Check for updates.">Check for updates now</a>';
 		return $plugin_meta;
 	}
@@ -67,13 +74,21 @@ class MainWP_Links_Checker_Extension
 					}
 				</style>
 				<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="update-message api-deactivate">
-				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://extensions.mainwp.com/my-account" target="_blank">', '</a>')); ?>
+				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://mainwp.com/my-account" target="_blank">', '</a>')); ?>
 				</div></td></tr>
 				<?php
 			}
-		}		
+		}	
 	}	
 	
+	function mainwp_sync_extensions_options($values = array()) {
+		$values['mainwp-broken-links-checker-extension'] = array(			
+			'plugin_name' => 'Broken Link Checker', 
+			'plugin_slug' => 'broken-link-checker/broken-link-checker.php'			
+		);
+		return $values;
+	}
+			
 	public function admin_init() {
 
 		wp_enqueue_style( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css' );
@@ -110,9 +125,7 @@ register_deactivation_hook( __FILE__, 'mainwp_blc_deactivate' );
 function mainwp_blc_activate() {
 	update_option( 'mainwp_blc_activated', 'yes' );
 	$extensionActivator = new MainWP_Links_Checker_Extension_Activator();
-	$extensionActivator->activate();
-	$plugin_slug = plugin_basename(__FILE__);  	
-	do_action('mainwp_enable_extension', $plugin_slug);
+	$extensionActivator->activate();	
 }
 
 function mainwp_blc_deactivate() {
@@ -162,19 +175,12 @@ class MainWP_Links_Checker_Extension_Activator
 	}
 
 	function settings() {
-
-		do_action( 'mainwp-pageheader-extensions', __FILE__ );
-		if ( $this->childEnabled ) {
-			MainWP_Links_Checker::render();
-		} else {
-			?><div class="mainwp_info-box-yellow"><strong><?php _e( 'The Extension has to be enabled to change the settings.' ); ?></strong></div><?php
-		}
+		do_action( 'mainwp-pageheader-extensions', __FILE__ );		
+		MainWP_Links_Checker::render();		
 		do_action( 'mainwp-pagefooter-extensions', __FILE__ );
 	}
 
 	public function get_metaboxes( $metaboxes ) {
-
-		if ( ! $this->childEnabled ) { return $metaboxes; }
 		if ( ! is_array( $metaboxes ) ) { $metaboxes = array(); }
 		$metaboxes[] = array( 'plugin' => $this->childFile, 'key' => $this->childKey, 'metabox_title' => 'MainWP Broken Links Checker', 'callback' => array( 'MainWP_Links_Checker', 'render_metabox' ) );
 		return $metaboxes;
@@ -182,17 +188,12 @@ class MainWP_Links_Checker_Extension_Activator
 
 
 	function activate_this_plugin() {
-
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
-
 		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
-		if ( ! $this->childEnabled ) { return; }
-
 		$this->childKey = $this->childEnabled['key'];
-
 		if ( function_exists( 'mainwp_current_user_can' )&& ! mainwp_current_user_can( 'extension', 'mainwp-broken-links-checker-extension' ) ) {
-			return; }
-
+			return; 			
+		}
 		add_filter( 'mainwp-getmetaboxes', array( &$this, 'get_metaboxes' ) );
 		new MainWP_Links_Checker_Extension();
 	}
@@ -211,7 +212,7 @@ class MainWP_Links_Checker_Extension_Activator
 
 		global $current_screen;
 		if ( $current_screen->parent_base == 'plugins' && $this->mainwpMainActivated == false ) {
-			echo '<div class="error"><p>MainWP Broken Links Checker Extension ' . __( 'requires <a href="http://mainwp.com/" target="_blank">MainWP</a> Plugin to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP</a> first.' ) . '</p></div>';
+			echo '<div class="error"><p>MainWP Broken Links Checker Extension ' . __( 'requires <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> first.' ) . '</p></div>';
 		}
 	}
 
