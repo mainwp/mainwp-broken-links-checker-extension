@@ -242,5 +242,5 @@ class MainWP_Links_Checker_Extension_Activator
 	}
 }
 
-global $MainWP_Links_Checker_Extension_Activator;
+global $mainWPLinksCheckerExtensionActivator;
 $mainWPLinksCheckerExtensionActivator = new MainWP_Links_Checker_Extension_Activator();
