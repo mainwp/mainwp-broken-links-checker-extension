@@ -1,20 +1,16 @@
 jQuery( document ).ready(function($) {
-
-	$( '#blc_dashboard_tab_lnk' ).on('click', function () {
-		showBLCheckerTab( true, false, false );
-		return false;
+        $( 'a.blc_tab_lnk' ).on('click', function () {
+            
+            if ($(this).attr('href') !== '#')
+                return;
+            
+            $( '.blc_tab_lnk' ).removeClass('mainwp_action_down');
+            $( this ).addClass('mainwp_action_down');
+            $( '.blc_tab_content' ).hide();            
+            $( '.blc_tab_content[data-tab="' + $(this).data('tab') + '"]' ).show();
+            return false;
 	});
-
-	$( '#blc_broken_links_tab_lnk' ).on('click', function () {
-		showBLCheckerTab( false, true, false );
-		return false;
-	});
-
-	$( '#blc_settings_tab_lnk' ).on('click', function () {
-		showBLCheckerTab( false, false, true );
-		return false;
-	});
-
+        
 	$( '#mwp_linkschecker_btn_display' ).live('click', function() {
 		$( this ).closest( 'form' ).submit();
 	});
@@ -78,8 +74,7 @@ jQuery( document ).ready(function($) {
 				max_number_of_links: $( '#max_number_of_links' ).val()
 			}
 
-			var me = $( this );
-
+                        var me = $( this );
 			$( '#mwp-blc-setting-error-box' ).hide();
 			$( '#mainwp_blc_setting_loading' ).show();
 			me.attr( "disabled","disabled" );
@@ -87,9 +82,8 @@ jQuery( document ).ready(function($) {
 				$( '#mainwp_blc_setting_loading' ).hide();
 				if (response) {
 					if (response['success'] && response['result']) {
-						me.remove();
-						$( '#mwp_blc_settings_saving_title' ).show();
-						$( '#mainwp-blc-setting-tab-content' ).html( response.result );
+						jQuery('#mwp-blc-save-settings-btn').remove();
+						$( '#blc_settings_tab .postbox .inside' ).html( response.result );
 						mainwp_linkschecker_save_settings_start_next();
 					} else if (response['error']) {
 						$( '#mwp-blc-setting-error-box' ).html( response.error ).fadeIn();
@@ -118,9 +112,8 @@ jQuery( document ).ready(function($) {
 				$( '#mainwp_blc_setting_recheck_loading' ).hide();
 				if (response) {
 					if (response['success'] && response['result']) {
-						me.remove();
-						$( '#mwp_blc_settings_start_recheck_title' ).show();
-						$( '#mainwp-blc-setting-tab-content' ).html( response.result );
+						jQuery('#mwp-blc-save-settings-btn').remove();						
+						$( '#blc_settings_tab .postbox .inside' ).html( response.result );
 						mainwp_linkschecker_settings_recheck_start_next();
 					} else if (response['error']) {
 						$( '#mwp-blc-setting-error-box' ).html( response.error ).fadeIn();
@@ -134,38 +127,37 @@ jQuery( document ).ready(function($) {
 			},'json');
 
 		});
+                
+                $( '#mwp_sync_links_data' ).live('click', function() {
+                        var statusEl = $('.sync_links_working');
+                        statusEl.html('<i class="fa fa-spinner fa-pulse"></i>').show();
+			var data = {
+                            action: 'mainwp_linkschecker_load_sites'
+			}
+			var me = $( this );			
+			me.attr( "disabled","disabled" );
+			jQuery.post(ajaxurl, data, function (response) {
+				statusEl.hide();
+				if (response) {
+					if (response['success'] && response['result']) {										
+						$( '#mainwp_blc_links_content' ).html( response.result );
+						mainwp_linkschecker_sync_links_start_next();
+					} else if (response['error']) {
+						statusEl.html( response.error ).fadeIn();
+					} else {
+						statusEl.html( __( "Undefined error" ) ).fadeIn();
+					}
+				} else {
+					statusEl.html( __( "Undefined error" ) ).fadeIn();
+				}
+				me.removeAttr( 'disabled' );
+			},'json');
+
+		});
+                
 
 });
 
-
-showBLCheckerTab = function(dashboard, links, setting) {
-	var dashboard_tab_lnk = jQuery( "#blc_dashboard_tab_lnk" );
-	if (dashboard) {  dashboard_tab_lnk.addClass( 'mainwp_action_down' ); } else { dashboard_tab_lnk.removeClass( 'mainwp_action_down' ); }
-
-	var links_tab_lnk = jQuery( "#blc_broken_links_tab_lnk" );
-	if (links) { links_tab_lnk.addClass( 'mainwp_action_down' ); } else { links_tab_lnk.removeClass( 'mainwp_action_down' ); }
-
-	var settings_tab_lnk = jQuery( "#blc_settings_tab_lnk" );
-	if (setting) { settings_tab_lnk.addClass( 'mainwp_action_down' ); } else { settings_tab_lnk.removeClass( 'mainwp_action_down' ); }
-
-	var dashboard_tab = jQuery( "#blc_dashboard_tab" );
-	var links_tab = jQuery( "#blc_broken_links_tab" );
-	var settings_tab = jQuery( "#blc_settings_tab" );
-
-	if (dashboard) {
-		dashboard_tab.show();
-		links_tab.hide();
-		settings_tab.hide();
-	} else if (links) {
-		dashboard_tab.hide();
-		links_tab.show();
-		settings_tab.hide();
-	} else if (setting) {
-		dashboard_tab.hide();
-		links_tab.hide();
-		settings_tab.show();
-	}
-};
 
 var linkschecker_bulkMaxThreads = 3;
 var linkschecker_bulkTotalThreads = 0;
@@ -282,9 +274,9 @@ mainwp_linkschecker_upgrade_start_specific = function(pObj, bulk, selector) {
 	if (bulk) {
 		linkschecker_bulkCurrentThreads++; }
 
-	workingRow.find( 'img' ).show();
+	workingRow.find( 'i' ).show();
 	jQuery.post(ajaxurl, data, function (response) {
-		workingRow.find( 'img' ).hide();
+		workingRow.find( 'i' ).hide();
 		pObj.removeClass( 'queue' );
 		if (response && response['error']) {
 			workingRow.find( '.status' ).html( '<font color="red">' + response['error'] + '</font>' );
@@ -329,9 +321,9 @@ mainwp_linkschecker_active_start_specific = function(pObj, bulk, selector) {
 	if (bulk) {
 		linkschecker_bulkCurrentThreads++; }
 
-	workingRow.find( 'img' ).show();
+	workingRow.find( 'i' ).show();
 	jQuery.post(ajaxurl, data, function (response) {
-		workingRow.find( 'img' ).hide();
+		workingRow.find( 'i' ).hide();
 		pObj.removeClass( 'queue' );
 		if (response && response['error']) {
 			workingRow.find( '.status' ).html( '<font color="red">' + response['error'] + '</font>' );
@@ -363,13 +355,13 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
 {
 	linkschecker_bulkCurrentThreads++;
 	pSiteToProcess.attr( 'status', 'progress' );
-	var statusEl = pSiteToProcess.find( '.status' ).html( '<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' + 'running ...' );
+	var statusEl = pSiteToProcess.find( '.status' ).html( '<i class="fa fa-spinner fa-pulse"></i> ' + 'running ...' );
 
 	var data = {
 		action:'mainwp_linkschecker_performsavelinkscheckersettings',
 		siteId: pSiteToProcess.attr( 'siteid' ),		
 	};
-
+        var $container = jQuery( '#blc_settings_tab .postbox .inside' );
 	jQuery.post(ajaxurl, data, function (response)
 		{
 		pSiteToProcess.attr( 'status', 'done' );
@@ -393,10 +385,8 @@ mainwp_linkschecker_save_settings_start_specific = function (pSiteToProcess)
 		linkschecker_bulkCurrentThreads--;
 		linkschecker_bulkFinishedThreads++;
 		if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
-			jQuery( '#mainwp_blc_setting_ajax_message_zone' ).html( 'Settings saved to child sites.' ).fadeIn( 100 );
-			setTimeout(function() {
-				location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
-			}, 3000);
+                        $container.append('<div class="mainwp_info-box-yellow">Settings saved to child sites.</div>');
+                        $container.append('<p><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&tab=settings" class="button-primary">' + __('Return to Settings') + '</a></p>');			
 		}
 		mainwp_linkschecker_save_settings_start_next();
 	}, 'json');
@@ -416,13 +406,15 @@ mainwp_linkschecker_settings_recheck_start_specific = function (pSiteToProcess)
 {
 	linkschecker_bulkCurrentThreads++;
 	pSiteToProcess.attr( 'status', 'progress' );
-	var statusEl = pSiteToProcess.find( '.status' ).html( '<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' + 'running ...' );
+	var statusEl = pSiteToProcess.find( '.status' ).html( '<i class="fa fa-spinner fa-pulse"></i> ' + 'running ...' );
 
 	var data = {
 		action:'mainwp_linkschecker_perform_recheck',
 		siteId: pSiteToProcess.attr( 'siteid' )
 	};
-
+        
+        var $container = jQuery( '#blc_settings_tab .postbox .inside' );
+        
 	jQuery.post(ajaxurl, data, function (response)
 		{
 		pSiteToProcess.attr( 'status', 'done' );
@@ -443,16 +435,83 @@ mainwp_linkschecker_settings_recheck_start_specific = function (pSiteToProcess)
 
 		linkschecker_bulkCurrentThreads--;
 		linkschecker_bulkFinishedThreads++;
-		if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {
-			jQuery( '#mainwp_blc_setting_ajax_message_zone' ).html( 'Recheck started on child sites.' ).fadeIn( 100 );
-			setTimeout(function() {
-				location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension';
-			}, 3000);
+		if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {			
+                        $container.append('<div class="mainwp_info-box-yellow">Recheck started on child sites.</div>');
+                        $container.append('<p><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&tab=settings" class="button-primary">' + __('Return to Settings') + '</a></p>');			
 		}
 		mainwp_linkschecker_settings_recheck_start_next();
 	}, 'json');
 };
 
+
+mainwp_linkschecker_sync_links_start_next = function()
+{
+	if (linkschecker_bulkTotalThreads == 0) {
+		linkschecker_bulkTotalThreads = jQuery( '.mainwpProccessSitesItem[status="queue"]' ).length; }
+
+	while ((siteToProcess = jQuery( '.mainwpProccessSitesItem[status="queue"]:first' )) && (siteToProcess.length > 0)  && (linkschecker_bulkCurrentThreads < linkschecker_bulkMaxThreads)) {
+		mainwp_linkschecker_sync_links_start_specific( siteToProcess );
+	}
+};
+
+mainwp_linkschecker_sync_links_start_specific = function (pSiteToProcess, offset)
+{
+        pSiteToProcess.attr( 'status', 'progress' );
+        var offset_num = 0;
+        var first_sync = 0;
+        
+	if (typeof offset != 'undefined' && offset > 0) {
+            offset_num = offset;           
+        } else {        
+            linkschecker_bulkCurrentThreads++;
+            first_sync = 1;
+        }
+        
+	var statusEl = pSiteToProcess.find( '.status' ).html( '<i class="fa fa-spinner fa-pulse"></i> ' + 'Syncing ... ' + (offset_num > 0 ? offset_num : '') );
+        
+        var data = {
+		action:'mainwp_linkschecker_sync_links_data',
+		siteId: pSiteToProcess.attr( 'siteid' ),
+                first_sync: first_sync
+	};
+        
+        if (offset_num > 0) {
+             data['offset'] = offset_num;
+        }
+        
+	jQuery.post(ajaxurl, data, function (response)
+		{
+		pSiteToProcess.attr( 'status', 'done' );
+		if (response) {
+			if (response['result'] == 'success') {
+                            if (response['sync_offset']){
+                                mainwp_linkschecker_sync_links_start_specific(pSiteToProcess, response['sync_offset']);
+                                return;
+                            } else {                                
+				statusEl.html( 'Successful' ).show();
+                            } 
+			} else if (response['error']) {
+				statusEl.html( response['error'] ).show();
+				statusEl.css( 'color', 'red' );
+			} else {
+				statusEl.html( __( 'Undefined Error' ) ).show();
+				statusEl.css( 'color', 'red' );
+			}
+		} else {
+			statusEl.html( __( 'Undefined Error' ) ).show();
+			statusEl.css( 'color', 'red' );
+		}
+
+		linkschecker_bulkCurrentThreads--;
+		linkschecker_bulkFinishedThreads++;
+		if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {			
+                        var $container = jQuery( '#mainwp_blc_links_content' );
+                        $container.append('<div class="mainwp_info-box-yellow">Sync Links Data Finished.</div>');
+                        $container.append('<p><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&tab=links" class="button-primary">' + __('Return to Links') + '</a></p>');			
+		}
+		mainwp_linkschecker_sync_links_start_next();
+	}, 'json');
+};
 
 
 jQuery( document ).ready(function($) {

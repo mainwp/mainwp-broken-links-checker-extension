@@ -33,6 +33,7 @@ class MainWP_Links_Checker_Extension
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
+		add_action( 'init', array( &$this, 'localization' ) );
 		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );
 		add_action( 'mainwp_applypluginsettings_mainwp-broken-links-checker-extension', array( MainWP_Links_Checker::get_instance(), 'mainwp_apply_plugin_settings' ), 10, 1 );
 		MainWP_Links_Checker_DB::get_instance()->install();
@@ -81,6 +82,12 @@ class MainWP_Links_Checker_Extension
 		}	
 	}	
 	
+	
+	public function localization() {
+		load_plugin_textdomain( 'mainwp-broken-links-checker-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	}
+	
+	
 	function mainwp_sync_extensions_options($values = array()) {
 		$values['mainwp-broken-links-checker-extension'] = array(			
 			'plugin_name' => 'Broken Link Checker', 
@@ -93,7 +100,7 @@ class MainWP_Links_Checker_Extension
 
 		wp_enqueue_style( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css' );
 		wp_enqueue_script( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js' );
-		MainWP_Links_Checker::get_instance()->admin_init();
+		
 		MainWP_Links_Checker_Dashboard::get_instance()->admin_init();
 	}
 }
@@ -162,7 +169,13 @@ class MainWP_Links_Checker_Extension_Activator
 
 	function get_this_extension( $pArray ) {
 
-		$pArray[] = array( 'plugin' => __FILE__, 'api' => $this->plugin_handle, 'mainwp' => true, 'callback' => array( &$this, 'settings' ),  'apiManager' => true );
+		$pArray[] = array( 'plugin' => __FILE__, 
+							'api' => $this->plugin_handle, 
+							'mainwp' => true, 
+							'callback' => array( &$this, 'settings' ),  
+							'apiManager' => true,
+							'on_load_callback' => array('MainWP_Links_Checker' , 'on_load_page')
+							);
 		return $pArray;
 	}
 

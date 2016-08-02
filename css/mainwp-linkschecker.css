@@ -236,3 +236,9 @@ img.waiting {
 .mainwp_ext_info_box a {
 	text-decoration: none !important;
 }
+#mainwp_blc_links_content .first, 
+#mainwp_blc_links_content .prev, 
+#mainwp_blc_links_content .next,
+#mainwp_blc_links_content .last {
+    vertical-align: 0;
+}

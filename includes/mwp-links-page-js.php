@@ -56,11 +56,12 @@ function mwp_reloadDetailsRow(link_id){
 jQuery(function($){
     
     //The details button - display/hide detailed info about a link
-    $("td.mwp-column-link-text, td.mwp-column-status, td.mwp-column-new-link-text").click(function () {
+    $(".blc-details-button, td.mwp-column-link-text, td.mwp-column-status, td.mwp-column-new-link-text").click(function () {
         var master = $(this).parents('.blc-row');
         var link_id = master.attr('id').split('-')[2];
         var site_id = master.attr('id').split('-')[4];
         $('#link-details-'+link_id+'-siteid-'+site_id).toggle();
+		return false;
     });
 
     var ajaxInProgressHtml = '<?php echo esc_js( __( 'Wait...' ) ); ?>';
