@@ -527,7 +527,7 @@ class MainWP_Links_Checker
                 <span class="mwp_lc_count_links broken"><span class="number"><?php echo $broken_link . '</span><br/>' . __( 'Broken Links', 'mainwp-broken-links-checker-extension' ); ?></span>
                 <span class="mwp_lc_count_links redirects"><span class="number"><?php echo $redirects_link . '</span><br/>' . __( 'Redirect', 'mainwp-broken-links-checker-extension' ); ?></span>
                 <span class="mwp_lc_count_links dismissed"><span class="number"><?php echo $dismissed_link . '</span><br/>' . __( 'Dismissed', 'mainwp-broken-links-checker-extension' ); ?></span>
-                <span class="mwp_lc_count_links all"><span class="number"><?php echo $all_link . '</span><br/>' . __( strtoupper( 'All', 'mainwp-broken-links-checker-extension' ) ); ?></span>
+                <span class="mwp_lc_count_links all"><span class="number"><?php echo $all_link . '</span><br/>' . __( 'All', 'mainwp-broken-links-checker-extension' ); ?></span>
             </div>
             <br class="clearfix">            
             <?php } ?>
