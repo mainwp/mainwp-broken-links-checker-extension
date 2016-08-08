@@ -154,12 +154,12 @@ class MainWP_Links_Checker
 		add_screen_option( 'per_page', $args );
 	}
 	
-	public static function set_screen_option( $status, $option, $value ) {
+	public static function set_screen_option( $status, $option, $value ) {               
 		if ( 'mainwp_blc_links_per_page' == $option ) {
 			return $value;
 		}
-
-		return null;
+                // to fix bug
+		return $value;
 	}
 
 	
@@ -1007,8 +1007,8 @@ class MainWP_Links_Checker
 	
 	static function gen_broken_links_tab( $links, $filters, $sites_url ) {
 		
-		$url_order =  $linktext_order = $site_order = 'desc';
-		$sorted_url = $sorted_linktext = $sorted_site = '';
+		$url_order =  $linktext_order = $site_order = $redirect_order = 'desc';
+		$sorted_url = $sorted_linktext = $sorted_site = $sorted_redirect = '';
 		
 		$order = isset($filters['order']) ? $filters['order'] : 'desc';
 		
@@ -1439,7 +1439,7 @@ class MainWP_Links_Checker
 
                 <li><strong><?php _e( 'Instance count' ); ?>:</strong>
                 <span class='instance_count'><?php
-					print $link->count_instance;
+					print property_exists($link, 'count_instance') ? $link->count_instance : '' ;
 				?></span></li>
 
                 <?php if ( $link->broken && (intval( $link->check_count ) > 0) ) {  ?>
