@@ -516,7 +516,7 @@ class MainWP_Links_Checker
 		?>
         <div id="mainwp_widget_linkschecker_content" style="margin-top: 1em;">
             <?php
-			if ( !$result || $result->active ) {
+			if ( !$result || !$result->active ) {
 				echo '<br class="clearfix">';
 				echo '<span style="float:left">'. __( 'Broken Link Checker plugin not found or not activated on the website.' ) . '</span>';
 				echo '<br class="clearfix">';
@@ -812,7 +812,7 @@ class MainWP_Links_Checker
 		$style_dashboard_tab = $style_broken_links_tab = $style_settings_tab = ' style="display: none" ';		
 		
 		$url_links_tab = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&tab=links';
-		if ( isset( $_POST['mainwp_blc_links_groups_select'] ) || isset( $_POST['mainwp_blc_select_site'] ) || isset( $_GET['sl'] ) ) {
+		if ( isset( $_POST['mainwp_blc_links_groups_select'] ) || isset( $_POST['mainwp_blc_select_site'] ) || isset( $_GET['sl'] )  || isset( $_GET['filter_id'] ) ) {
 			$style_broken_links_tab = '';
 		} else if (isset($_GET['tab'])) {
 			if ($_GET['tab'] == 'settings') {
@@ -838,7 +838,7 @@ class MainWP_Links_Checker
 			}
 		}
 		
-		$current_filters = self::get_current_filters();			
+		$current_filters = self::get_current_filters();			                
 		$selected_site_ids = self::get_filter_site_ids($websites, $current_filters);
 		
 		
@@ -1078,8 +1078,8 @@ class MainWP_Links_Checker
                 </tfoot> 
                 <tbody class="list:posts">
                 <?php
-					self::render_table_links_content( $links, $sites_url );
-				?>
+                        self::render_table_links_content( $links, $sites_url );
+                ?>
                 </tbody>
             </table>           
             <div class="clear"></div>         
@@ -1212,6 +1212,9 @@ class MainWP_Links_Checker
 		
 		$max_pages = ceil( $total / $per_page);			
 		$filters['paged'] = '%#%';
+                
+                if (!isset($filters['tab']) || $filters['tab'] != 'links')
+                    $filters['tab'] = 'links';
 		
 		//WP has a built-in function for pagination
 		$page_links = paginate_links( array(
@@ -1532,14 +1535,14 @@ class MainWP_Links_Checker
                 </td>
                 <td class="redirect-url column-redirect-url">    
                     <?php
-						MainWP_Links_Checker::get_instance()->column_redirect_url( $link );
-					?>
+                            MainWP_Links_Checker::get_instance()->column_redirect_url( $link );
+                    ?>
                 </td>                
                 <td class="source column-source">                  
                     <?php						
-						$site_url = $sites_url[ $link->site_id ];
-						MainWP_Links_Checker::get_instance()->column_source( $link, $site_url );
-					?>
+                            $site_url = $sites_url[ $link->site_id ];
+                            MainWP_Links_Checker::get_instance()->column_source( $link, $site_url );
+                    ?>
                 </td>    
                 <td class="url column-url">       
                     <a href="<?php echo $sites_url[ $link->site_id ]; ?>" target="_blank"><?php echo $sites_url[ $link->site_id ]; ?></a><br/>
@@ -1552,9 +1555,9 @@ class MainWP_Links_Checker
                     </div>                    
                 </td>    
             </tr>
-    <?php
-			MainWP_Links_Checker::get_instance()->link_details_row( $link , $extra_info);
-		};
+             <?php
+                    MainWP_Links_Checker::get_instance()->link_details_row( $link , $extra_info);
+            };
 
 	}
 
