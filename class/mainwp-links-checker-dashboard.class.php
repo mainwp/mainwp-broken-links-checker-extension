@@ -191,7 +191,7 @@ class MainWP_Links_Checker_Dashboard
                </th>
                <td>
                    <a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo esc_html( stripslashes( $website['name'] ) ); ?></a><br/>
-                   <div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e( 'Dashboard' );?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e( 'Edit' );?></a><?php echo $showhide_link; ?></span></div>                    
+                   <div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e( 'Overview' );?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e( 'Edit' );?></a><?php echo $showhide_link; ?></span></div>                    
                    <div class="linkschecker-action-working"><span class="status" style="display:none;"></span><span class="loading" style="display:none;"><i class="fa fa-spinner fa-pulse"></i> <?php _e( 'Please wait...', 'mainwp-broken-links-checker-extension' ); ?></span></div>
                </td>
                <td>

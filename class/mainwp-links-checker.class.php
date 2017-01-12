@@ -123,7 +123,9 @@ class MainWP_Links_Checker
 	}
 
 	public function init() {
-		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 1 );
+                add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
+		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
+                add_filter( 'mainwp_brokenlinks_get_data', array( &$this, 'brokenlinks_get_data' ), 10, 4 ); //ok
 		add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
 		add_action( 'wp_ajax_mainwp_broken_links_checker_edit_link', array( $this, 'ajax_edit_link' ) );
 		add_action( 'wp_ajax_mainwp_broken_links_checker_unlink', array( $this, 'ajax_unlink' ) );
@@ -188,10 +190,10 @@ class MainWP_Links_Checker
 		}
 		
 		$post_data = array(
-							'mwp_action' => 'sync_links_data',							
-							'max_results' => get_option( 'mainwp_blc_max_number_of_links', 50 ),
-							'offset' => $offset
-						);
+                    'mwp_action' => 'sync_links_data',							
+                    'max_results' => get_option( 'mainwp_blc_max_number_of_links', 50 ),
+                    'offset' => $offset
+                );
 		
 		global $mainWPLinksCheckerExtensionActivator;
 		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->get_child_file(), $mainWPLinksCheckerExtensionActivator->get_child_key(), $website_id, 'links_checker', $post_data );
@@ -222,11 +224,81 @@ class MainWP_Links_Checker
 		} 		
 		die( json_encode( $information)); 				
 	}
+        
+        public function sync_others_data( $data, $pWebsite = null ) {
+		if ( ! is_array( $data ) ) {
+                    $data = array();
+                }
+		$data['syncBrokenLinksCheckerData'] = 1;
+		return $data;
+	}
 	
-	public function site_synced( $website ) {
-		$this->sync_links_data( $website );
+	public function site_synced( $website, $information = array()) {
+		
+                $activated = false;		
+		$plugins = json_decode( $website->plugins, 1 );		
+		if ( is_array( $plugins ) && count( $plugins ) != 0 ) {
+			foreach ( $plugins as $plugin ) {
+				if ( 'broken-link-checker/broken-link-checker.php' == $plugin['slug'] || false !== strpos( $plugin['slug'], '/broken-link-checker.php' ) ) {
+					if ($plugin['active']) {
+						$activated = true;
+						break;
+					}
+					
+				}
+			}			
+		}
+		
+		$website_id = $website->id;
+		
+		// do not sync links data
+		if (!$activated) {
+                    MainWP_Links_Checker_DB::get_instance()->update_links_checker( array( 'site_id' => $website_id, 'active' => 0 ) );
+                    return;	
+		}
+		$update = array(
+                    'site_id' => $website_id,
+                    'active' => 1                    
+                );
+                
+                if ( is_array( $information ) && isset( $information['syncBrokenLinksCheckerData'] ) && is_array( $information['syncBrokenLinksCheckerData'] ) && isset( $information['syncBrokenLinksCheckerData']['data'] )) {
+                    $data = $information['syncBrokenLinksCheckerData']['data'];
+                    $update['count_broken'] = intval( $data['broken'] );
+                    $update['count_redirects'] = intval( $data['redirects'] );
+                    $update['count_dismissed'] = intval( $data['dismissed'] );
+                    $update['count_total'] = intval( $data['all'] );
+                }
+                 
+                MainWP_Links_Checker_DB::get_instance()->update_links_checker( $update );                
+		update_option( 'mainwp_blc_refresh_count_links_info', 1 );
+                
 	}
 
+         function brokenlinks_get_data( $input, $site_id ) {
+		if ( empty( $site_id ) ) {
+                    return $input;                         
+                }
+		global $mainWPLinksCheckerExtensionActivator;
+		$websites = apply_filters( 'mainwp-getsites', $mainWPLinksCheckerExtensionActivator->get_child_file(), $mainWPLinksCheckerExtensionActivator->get_child_key(), $site_id );
+                $website = null;
+                if ( is_array( $websites ) ) {
+                    $website = current( $websites );
+		}
+		if ( ! $website ) {
+                    return $input;
+                }
+		               
+                $data = MainWP_Links_Checker_DB::get_instance()->get_links_checker_by( 'site_id', $site_id );		
+  
+                if (is_object( $data ) ) {
+                    $input['brokenlinks.links.broken'] = intval($data->count_broken);
+                    $input['brokenlinks.links.redirect'] = intval($data->count_redirects);			
+                    $input['brokenlinks.links.dismissed'] = intval($data->count_dismissed);	
+                    $input['brokenlinks.links.all'] = intval($data->count_total);	
+		}
+		return $input;
+	}
+        
 	public function sync_links_data( $website ) {		
 		$activated = false;		
 		$plugins = json_decode( $website->plugins, 1 );		
@@ -251,9 +323,9 @@ class MainWP_Links_Checker
 		}
 				
 		$post_data = array(
-							'mwp_action' => 'sync_data',							
-							'max_results' => get_option( 'mainwp_blc_max_number_of_links', 50 )
-						);
+                                'mwp_action' => 'sync_data',							
+                                'max_results' => get_option( 'mainwp_blc_max_number_of_links', 50 )
+                            );
 		
 		global $mainWPLinksCheckerExtensionActivator;
 		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPLinksCheckerExtensionActivator->get_child_file(), $mainWPLinksCheckerExtensionActivator->get_child_key(), $website_id, 'links_checker', $post_data );
@@ -261,13 +333,13 @@ class MainWP_Links_Checker
 		if ( is_array( $information ) && isset( $information['data'] ) && is_array( $information['data'] ) ) {
 			$data = $information['data'];				
 			$update = array(			
-							'site_id' => $website_id,
-							'count_broken' => intval( $data['broken'] ),					
-							'count_redirects' => intval( $data['redirects'] ),
-							'count_dismissed' => intval( $data['dismissed'] ),
-							'count_total' => intval( $data['all'] ),
-							'active' => 1							
-						);
+                                    'site_id' => $website_id,
+                                    'count_broken' => intval( $data['broken'] ),					
+                                    'count_redirects' => intval( $data['redirects'] ),
+                                    'count_dismissed' => intval( $data['dismissed'] ),
+                                    'count_total' => intval( $data['all'] ),
+                                    'active' => 1							
+                                );
 			MainWP_Links_Checker_DB::get_instance()->update_links_checker( $update );
 //			if (isset($data['link_data'])) {
 //				MainWP_Links_Checker_DB::get_instance()->update_links_data( $website_id, $data['link_data'] );
@@ -1548,7 +1620,7 @@ class MainWP_Links_Checker
                     <a href="<?php echo $sites_url[ $link->site_id ]; ?>" target="_blank"><?php echo $sites_url[ $link->site_id ]; ?></a><br/>
                     <div class="row-actions">
                         <span class="edit">
-                            <a href="admin.php?page=managesites&dashboard=<?php echo $link->site_id; ?>"><?php _e( 'Dashboard' ); ?></a>                                                       
+                            <a href="admin.php?page=managesites&dashboard=<?php echo $link->site_id; ?>"><?php _e( 'Overview' ); ?></a>                                                       
                         </span> | <span class="edit">
                             <a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $link->site_id; ?>"><?php _e( 'Open WP-Admin' );?></a>
                         </span>
