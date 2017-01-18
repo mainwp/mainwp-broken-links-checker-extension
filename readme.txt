@@ -18,6 +18,7 @@ Icon URI:
 == Changelog ==
 
 = 1.3 = 1-18-2017
+* Fixed: multiple PHP Warnings
 * Added: support for Client Reports tokens
 
 = 1.2 = 8-12-2016
