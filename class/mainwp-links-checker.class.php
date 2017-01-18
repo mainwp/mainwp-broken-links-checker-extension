@@ -1592,7 +1592,7 @@ class MainWP_Links_Checker
 				$data_link_text
 			);
 
-			$link_text = preg_replace( '/src=".*\/images\/font-awesome\/(.+)/is', 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', $extra_info['link_text'] );
+			$link_text = preg_replace( '/src=".*\/images\/font-awesome\/(.+)/is', 'src="' . MWP_BROKEN_LINKS_CHECKER_URL . '/images/font-awesome/' . '${1}', (isset($extra_info['link_text']) ? $extra_info['link_text'] : '') );
 
 			?>              
             <tr valign="top" id="blc-row-<?php echo $link->link_id; ?>-siteid-<?php echo $link->site_id; ?>" class="blc-row link-status-<?php echo $status['code'] ?> <?php echo $rowclass; ?>" <?php echo $rowattr; ?>>                
