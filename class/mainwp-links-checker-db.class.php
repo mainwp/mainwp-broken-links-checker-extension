@@ -250,6 +250,7 @@ $tbl = 'CREATE TABLE `' . $this->table_name( 'linkschecker_links' ) . '` (
 		$params = array_merge($defaults, $extra_params);
 		
 		$filter_id = isset($filters['filter_id']) ? $filters['filter_id'] : '';
+		$filter_url = isset($filters['filter_url']) ? $filters['filter_url'] : '';
 		
 		$where_expr = '';
 		if ( !empty( $filter_id ) && 'all' != $filter_id ) {
@@ -261,6 +262,10 @@ $tbl = 'CREATE TABLE `' . $this->table_name( 'linkschecker_links' ) . '` (
 				$where_expr .= " AND dismissed = 0 AND redirect_count > 0 ";				
 			}			
 		}		
+		
+		if (!empty($filter_url)) {
+			$where_expr .= " AND url LIKE '%" . $filter_url . "%' ";
+		}
 		
 		if (is_array($site_ids) && count($site_ids) > 0) {
 			$where_expr .= " AND site_id IN (" . implode(",", $site_ids) . ") ";				

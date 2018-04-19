@@ -75,7 +75,7 @@ class MainWP_Links_Checker_Extension
 	public function admin_init() {
 
 		wp_enqueue_style( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'css/mainwp-linkschecker.css' );
-		wp_enqueue_script( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js' );
+		wp_enqueue_script( 'mainwp-linkschecker-extension', MWP_BROKEN_LINKS_CHECKER_URL . 'js/mainwp-linkschecker.js', array(), '1.5' );
 		
 		MainWP_Links_Checker_Dashboard::get_instance()->admin_init();
 	}

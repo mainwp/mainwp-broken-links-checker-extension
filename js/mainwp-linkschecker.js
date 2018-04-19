@@ -128,11 +128,27 @@ jQuery( document ).ready(function($) {
 
 		});
                 
-                $( '#mwp_sync_links_data' ).live('click', function() {
+                $( '#mwp_sync_links_data' ).on('click', function() {
                         var statusEl = $('.sync_links_working');
-                        statusEl.html('<i class="fa fa-spinner fa-pulse"></i>').show();
+                        statusEl.hide();
+			var selector = '#the-mwp-linkschecker-list tr input[type="checkbox"]';
+                        var selected_ids = [];
+                        jQuery(selector).each(function(){
+                                if (jQuery(this).is(':checked')) {
+                                        var row = jQuery(this).closest('tr');
+                                        selected_ids.push(row.attr('website-id'));
+                                }
+                        });
+			                        
+                        if (selected_ids.length == 0) {
+                            statusEl.html('Select sites you want to Sync links data.').fadeIn(1000);
+                            return false;
+                        }
+                        
+                        statusEl.html('<i class="fa fa-spinner fa-pulse"></i> Running... ').show();
 			var data = {
-                            action: 'mainwp_linkschecker_load_sites'
+                            action: 'mainwp_linkschecker_load_sites',
+                            siteids: selected_ids
 			}
 			var me = $( this );			
 			me.attr( "disabled","disabled" );
@@ -140,7 +156,7 @@ jQuery( document ).ready(function($) {
 				statusEl.hide();
 				if (response) {
 					if (response['success'] && response['result']) {										
-						$( '#mainwp_blc_links_content' ).html( response.result );
+						$( '#mainwp_blc_links_dashboard_content' ).html( response.result );
 						mainwp_linkschecker_sync_links_start_next();
 					} else if (response['error']) {
 						statusEl.html( response.error ).fadeIn();
@@ -154,7 +170,7 @@ jQuery( document ).ready(function($) {
 			},'json');
 
 		});
-                
+            
 
 });
 
@@ -186,7 +202,7 @@ mainwp_linkschecker_do_bulk_action = function(act) {
 			selector = '#the-mwp-linkschecker-list tr .linkschecker_showhide_plugin[showhide="show"]';
 			jQuery( selector ).addClass( 'queue' );
 			mainwp_linkschecker_showhide_start_next( selector );
-			break;
+			break;              
 	}
 }
 
@@ -488,7 +504,11 @@ mainwp_linkschecker_sync_links_start_specific = function (pSiteToProcess, offset
                                 mainwp_linkschecker_sync_links_start_specific(pSiteToProcess, response['sync_offset']);
                                 return;
                             } else {                                
-				statusEl.html( 'Successful' ).show();
+                                var msg = 'Successful';
+                                if ( response['total_sync'] ){
+                                    msg = msg + ' ' + response['total_sync'];
+                                }
+				statusEl.html( msg ).show();
                             } 
 			} else if (response['error']) {
 				statusEl.html( response['error'] ).show();
@@ -505,7 +525,7 @@ mainwp_linkschecker_sync_links_start_specific = function (pSiteToProcess, offset
 		linkschecker_bulkCurrentThreads--;
 		linkschecker_bulkFinishedThreads++;
 		if (linkschecker_bulkFinishedThreads == linkschecker_bulkTotalThreads && linkschecker_bulkFinishedThreads != 0) {			
-                        var $container = jQuery( '#mainwp_blc_links_content' );
+                        var $container = jQuery( '#mainwp_blc_links_dashboard_content' );
                         $container.append('<div class="mainwp_info-box-yellow">Sync Links Data Finished.</div>');
                         $container.append('<p><a href="admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&tab=links" class="button-primary">' + __('Return to Links') + '</a></p>');			
 		}
