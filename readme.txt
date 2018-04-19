@@ -17,7 +17,7 @@ Author URI: https://mainwp.com
 == Changelog ==
 
 = 1.5 - 4-19-2018 =
-* Added: an option to searach links by URL
+* Added: an option to search links by URL
 * Updated: sync links data feature
 
 = 1.4 - 2-27-2018 =
