@@ -14,7 +14,7 @@ function mwp_alterLinkCounter(factor, filterId){
     var cnt = parseInt(counter.eq(0).html(), 10);
     cnt = cnt + factor;
     counter.html(cnt);
-    
+
     if ( blc_is_broken_filter ){
         //Update the broken link count displayed beside the "Broken Links" menu
         var menuBubble = jQuery('span.blc-menu-bubble');
@@ -27,23 +27,23 @@ function mwp_alterLinkCounter(factor, filterId){
                 menuBubble.parent().hide();
             }
         }
-    }    
+    }
 }
 
 function mwp_replaceLinkId(old_id, new_id){
     var master = jQuery('#blc-row-'+old_id);
-    
+
     master.attr('id', 'blc-row-'+new_id);
     master.find('.blc-link-id').html(new_id);
-    
+
     var details_row = jQuery('#link-details-'+old_id);
     details_row.attr('id', 'link-details-'+new_id);
 }
 
 function mwp_reloadDetailsRow(link_id){
     var details_row = jQuery('#link-details-'+link_id);
-    
-    //Load up the new link info                     (so sue me)    
+
+    //Load up the new link info                     (so sue me)
 	details_row.find('td').html('<center><?php echo esc_js( __( 'Loading...' ) ); ?></center>').load(
             "<?php echo admin_url( 'admin-ajax.php' ); ?>",
             {
@@ -54,29 +54,29 @@ function mwp_reloadDetailsRow(link_id){
 }
 
 jQuery(function($){
-    
+
     //The details button - display/hide detailed info about a link
     $(".blc-details-button, td.mwp-column-link-text, td.mwp-column-status, td.mwp-column-new-link-text").click(function () {
         var master = $(this).parents('.blc-row');
         var link_id = master.attr('id').split('-')[2];
         var site_id = master.attr('id').split('-')[4];
-        $('#link-details-'+link_id+'-siteid-'+site_id).toggle();
+        $('#link-details-'+link_id+'-siteid-'+site_id).modal( 'show');
 		return false;
     });
 
     var ajaxInProgressHtml = '<?php echo esc_js( __( 'Wait...' ) ); ?>';
-    
+
     //The "Not broken" button - manually mark the link as valid. The link will be checked again later.
     $(".mwp-blc-discard-button").click(function () {
         var me = $(this);
         me.html(ajaxInProgressHtml);
-        
+
         var master = me.parents('.blc-row');
                 var link_id = master.attr('id').split('-')[2];
                 var site_id = master.attr('id').split('-')[4];
                 var statusEl = master.find('td.column-title .working-status');
                 statusEl.hide();
-                
+
                 $.post(
 			"<?php echo admin_url( 'admin-ajax.php' ); ?>",
             {
@@ -88,15 +88,15 @@ jQuery(function($){
             function (data, textStatus){
                 if (data && data['status'] == 'OK'){
                     var details = $('#link-details-'+link_id + '-siteid-' + site_id);
-                    
+
                     //Remove the "Not broken" action
                     me.parent().remove();
-                    
+
                     //Set the displayed link status to OK
                     var classNames = master.attr('class');
                     classNames = classNames.replace(/(^|\s)link-status-[^\s]+(\s|$)/, ' ') + ' link-status-ok';
                     master.attr('class', classNames);
-                    
+
                     //Flash the main row green to indicate success, then remove it if the current view
                     //is supposed to show only broken links.
                     flashElementGreen(master, function(){
@@ -107,7 +107,7 @@ jQuery(function($){
                             mwp_reloadDetailsRow(link_id);
                         }
                     });
-                    
+
                     //Update the elements displaying the number of results for the current filter.
                     if( blc_is_broken_filter ){
                                             mwp_alterLinkCounter(-1);
@@ -124,14 +124,14 @@ jQuery(function($){
                                                 statusEl.html(__('Can\'t find the link')).show();
                                             else {
                                                 statusEl.html(data.error).show();
-                                            }   
+                                            }
                                         }
                                         return false;
                 }
             },
             'json'
         );
-        
+
         return false;
     });
 
@@ -144,11 +144,11 @@ jQuery(function($){
         var master = me.closest('.blc-row');
         var link_id = master.attr('id').split('-')[2];
                 var site_id = master.attr('id').split('-')[4];
-                
+
         var should_hide_link = (blc_current_base_filter == 'broken') || (blc_current_base_filter == 'redirects');
                 var statusEl = master.find('td.column-title .working-status');
                 statusEl.hide();
-        
+
         $.post(
 			"<?php echo admin_url( 'admin-ajax.php' ); ?>",
             {
@@ -187,7 +187,7 @@ jQuery(function($){
                                         statusEl.html(__('Can\'t find the link')).show();
                                     else {
                                         statusEl.html(data.error).show();
-                                    }    
+                                    }
                                     statusEl.css('color', 'red');
                                     me.html(oldButtonHtml);
                                     return false;
@@ -211,11 +211,11 @@ jQuery(function($){
         var should_hide_link = (blc_current_base_filter == 'dismissed');
                 var statusEl = master.find('td.column-title .working-status');
                 statusEl.hide();
-        
+
         $.post(
 			"<?php echo admin_url( 'admin-ajax.php' ); ?>",
             {
-                'action' : 'mainwp_broken_links_checker_undismiss',                                
+                'action' : 'mainwp_broken_links_checker_undismiss',
                 'link_id' : link_id,
                                 'site_id' : site_id,
 				'_ajax_nonce' : '<?php echo esc_js( wp_create_nonce( 'mwp_blc_undismiss' ) );  ?>'
@@ -249,7 +249,7 @@ jQuery(function($){
                                         statusEl.html(__('Can\'t find the link')).show();
                                     else {
                                         statusEl.html(data.error).show();
-                                    }     
+                                    }
                                     statusEl.css('color', 'red');
                                     me.html(oldButtonHtml);
                                     return false;
@@ -267,22 +267,22 @@ jQuery(function($){
             var commentId = master.find('.source_column_data').data('comment_id');
             var siteIdEN = master.find('.source_column_data').data('site_id_encode');
             var link_id = master.attr('id').split('-')[2];
-            var site_id = master.attr('id').split('-')[4];              
+            var site_id = master.attr('id').split('-')[4];
             var me = $(this);
             var oldButtonHtml = me.html();
             me.html(ajaxInProgressHtml);
             var statusEl = master.find('td.column-source .working-status');
             statusEl.hide();
-                
+
             var data = {
                 'action': 'mainwp_broken_links_checker_comment_trash',
                 commentId: commentId,
                 websiteId: siteIdEN,
                 _ajax_nonce : '<?php echo esc_js( wp_create_nonce( 'mwp_blc_trash_comment' ) );  ?>'
             };
-        
+
             jQuery.post(ajaxurl, data, function (response) {
-                if (response.result) {                    
+                if (response.result) {
                     $('#link-details-'+link_id+'-siteid-'+site_id).hide();
                     //Flash the main row green to indicate success, then hide it.
                     var oldColor = master.css('background-color');
@@ -296,35 +296,35 @@ jQuery(function($){
                     }, 200);
                     return;
                 } else if (response.error) {
-                    statusEl.html(response.error).show();                                     
+                    statusEl.html(response.error).show();
                     statusEl.css('color', 'red');
                 }
-                me.html(oldButtonHtml);                                    
+                me.html(oldButtonHtml);
             }, 'json');
 
             return false;
-        });  
-        
+        });
+
         jQuery('.blc_post_submitdelete').live('click', function () {
             var master = jQuery(this).parents('.blc-row');
-            var postId = master.find('.source_column_data').data('post_id');            
+            var postId = master.find('.source_column_data').data('post_id');
             var link_id = master.attr('id').split('-')[2];
-            var site_id = master.attr('id').split('-')[4];              
+            var site_id = master.attr('id').split('-')[4];
             var me = $(this);
             var oldButtonHtml = me.html();
             me.html(ajaxInProgressHtml);
             var statusEl = master.find('td.column-source .working-status');
             statusEl.hide();
-       
+
             var data = {
                 'action': 'mainwp_broken_links_checker_post_trash',
                 postId: postId,
                 websiteId: site_id,
                 _ajax_nonce : '<?php echo esc_js( wp_create_nonce( 'mwp_blc_trash_post' ) );  ?>'
             };
-        
+
             jQuery.post(ajaxurl, data, function (response) {
-                if (response.result) {                    
+                if (response.result) {
                     $('#link-details-'+link_id+'-siteid-'+site_id).hide();
                     //Flash the main row green to indicate success, then hide it.
                     var oldColor = master.css('background-color');
@@ -336,18 +336,18 @@ jQuery(function($){
                     setTimeout(function() {
                         location.href = 'admin.php?page=Extensions-Mainwp-Broken-Links-Checker-Extension&filter_id=all&trashed_post_id=' + postId + '&trashed_site_id=' + site_id;
                     }, 200);
-                    
+
                     return;
                 } else if (response.error) {
-                    statusEl.html(response.error).show();                                     
+                    statusEl.html(response.error).show();
                     statusEl.css('color', 'red');
                 }
-                me.html(oldButtonHtml);                                    
+                me.html(oldButtonHtml);
             }, 'json');
 
             return false;
-        });  
-        
+        });
+
 
     function flashElementGreen(element, callback) {
         var oldColor = element.css('background-color');
@@ -431,7 +431,7 @@ jQuery(function($){
      */
     function mwp_hideLinkEditor(link_id) {
         var editRow = isNaN(link_id) ? link_id : $('#blc-edit-row-' + link_id);
-        editRow.prev('tr.blc-row').show();                
+        editRow.prev('tr.blc-row').show();
         editRow.remove();
     }
 
@@ -532,7 +532,7 @@ jQuery(function($){
                                             editRow.find('#mwp_blc_edit_link_error_box').html(__('The new URL is invalid')).show();
                                         } else {
                                             editRow.find('#mwp_blc_edit_link_error_box').html(response.error).show();
-                                        }      
+                                        }
                                         return false;
                 } else if (response.errors && response.errors.length > 0) {
                     //Build and display an error message.
@@ -602,7 +602,7 @@ jQuery(function($){
                     master.removeClass('blc-redirect');
 
                     //Flash the row green to indicate success
-                    flashElementGreen(master);                                               
+                    flashElementGreen(master);
                 }
 
                 mwp_hideLinkEditor(editRow);
@@ -619,7 +619,7 @@ jQuery(function($){
         var site_id = master.attr('id').split('-')[4];
         mwp_showLinkEditor(link_id, site_id);
     });
-    
+
     //Let the user use Enter and Esc as shortcuts for "Update" and "Cancel"
     $('.blc-inline-editor input[type="text"]').keypress(function (e) {
         var editRow = $(this).closest('.blc-inline-editor');
@@ -662,7 +662,7 @@ jQuery(function($){
     });
 
         //The "Cancel" in the inline editor.
-        $(".mwp-blc-cancel-button").click(function () { 
+        $(".mwp-blc-cancel-button").click(function () {
             var editRow = $(this).closest('tr');
             mwp_hideLinkEditor(editRow);
         });
@@ -677,16 +677,16 @@ jQuery(function($){
 
 
     //The "Unlink" button - remove the link/image from all posts, custom fields, etc.
-    $(".mwp-blc-unlink-button").click(function () { 
+    $(".mwp-blc-unlink-button").click(function () {
         var me = this;
         var master = $(me).parents('.blc-row');
-        $(me).html('<?php echo esc_js( __( 'Wait...' ) ); ?>');        
+        $(me).html('<?php echo esc_js( __( 'Wait...' ) ); ?>');
         //Find the link ID
         var link_id = master.attr('id').split('-')[2];
         var siteId = master.attr('id').split('-')[4];
         var statusEl = master.find('td.column-title .working-status');
         statusEl.hide();
-        
+
         $.post(
 			"<?php echo admin_url( 'admin-ajax.php' ); ?>",
             {
@@ -697,7 +697,7 @@ jQuery(function($){
             },
             function (data, textStatus){
                 eval('data = ' + data);
-                 
+
                 if ( data && (typeof(data['error']) != 'undefined') ){
                     //An internal error occured before the link could be edited.
                                         if (data.error === 'NOTALLOW')
@@ -709,30 +709,30 @@ jQuery(function($){
                                         else {
                                             statusEl.html(data.error).show();
                                         }
-                                        statusEl.css('color', 'red');                                        
+                                        statusEl.css('color', 'red');
                 } else {
                     if ( typeof(data['errors']) === 'undefined' || data.errors.length == 0 ){
-                        //The link was successfully removed. Hide its details. 
+                        //The link was successfully removed. Hide its details.
                                                 $('#link-details-'+link_id+'-siteid-'+siteId).hide()
                         //Flash the main row green to indicate success, then hide it.
                         var oldColor = master.css('background-color');
                         master.animate({ backgroundColor: "#E0FFB3" }, 200).animate({ backgroundColor: oldColor }, 300, function(){
                             master.hide();
                         });
-                        
+
                         mwp_alterLinkCounter(-1);
-                        
+
                         return;
                     } else if (data.errors && data.errors.length > 0 ) {
                         //Build and display an error message.
                         var msg = '';
-                        
+
                         if ( data.cnt_okay > 0 ){
                             msg = msg + sprintf(
-								'<?php echo esc_js( __( '%d instances of the link were successfully unlinked.' ) ); ?>\n', 
+								'<?php echo esc_js( __( '%d instances of the link were successfully unlinked.' ) ); ?>\n',
                                 data.cnt_okay
                             );
-                            
+
                             if ( data.cnt_error > 0 ){
                                 msg = msg + sprintf(
 									'<?php echo esc_js( __( "However, %d instances couldn't be removed." ) ); ?>\n',
@@ -742,33 +742,33 @@ jQuery(function($){
                         } else {
 							msg = msg + '<?php echo esc_js( __( 'The plugin failed to remove the link.' ) ); ?>\n';
                         }
-                                                        
+
 						msg = msg + '\n<?php echo esc_js( __( 'The following error(s) occured :' ) ); ?>\n* ';
                         msg = msg + data.errors.join('\n* ');
-                        
+
                         //Show the error message
                                                 statusEl.html(msg).show();
-                                                statusEl.css('color', 'red');                                                
-                    }               
+                                                statusEl.css('color', 'red');
+                    }
                 }
-                
-				$(me).html('<?php echo esc_js( __( 'Unlink' ) ); ?>'); 
+
+				$(me).html('<?php echo esc_js( __( 'Unlink' ) ); ?>');
             }
         );
     });
-    
+
     //--------------------------------------------
     //The search box(es)
     //--------------------------------------------
-    
+
     var searchForm = $('#search-links-dialog');
-        
+
     searchForm.dialog({
         autoOpen : false,
         dialogClass : 'blc-search-container',
         resizable: false
     });
-    
+
     $('#blc-open-search-box').click(function(){
         if ( searchForm.dialog('isOpen') ){
             searchForm.dialog('close');
@@ -777,23 +777,23 @@ jQuery(function($){
             var button_position = $('#blc-open-search-box').offset();
             var button_height = $('#blc-open-search-box').outerHeight(true);
             var button_width = $('#blc-open-search-box').outerWidth(true);
-            
+
             var dialog_width = searchForm.dialog('option', 'width');
-                        
-            searchForm.dialog('option', 'position', 
-                [ 
-                    button_position.left - dialog_width + button_width/2, 
+
+            searchForm.dialog('option', 'position',
+                [
+                    button_position.left - dialog_width + button_width/2,
                     button_position.top + button_height + 1 - $(document).scrollTop()
                 ]
             );
             searchForm.dialog('open');
         }
     });
-    
+
     $('#blc-cancel-search').click(function(){
         searchForm.dialog('close');
     });
-    
+
     //The "Save This Search Query" button creates a new custom filter based on the current search
     $('#blc-create-filter').click(function(){
 		var filter_name = prompt("<?php echo esc_js( __( 'Enter a name for the new custom filter' ) ); ?>", "");
@@ -802,8 +802,8 @@ jQuery(function($){
             $('#custom-filter-form').submit();
         }
     });
-    
-    //Display a confirmation dialog when the user clicks the "Delete This Filter" button 
+
+    //Display a confirmation dialog when the user clicks the "Delete This Filter" button
     $('#blc-delete-filter').click(function(){
 		var message = '<?php
 		echo esc_js( html_entity_decode( __( "You are about to delete the current filter.\n'Cancel' to stop, 'OK' to delete" ),
@@ -812,24 +812,24 @@ jQuery(function($){
 		?>';
         return confirm(message);
     });
-    
+
     //--------------------------------------------
     // Bulk actions
     //--------------------------------------------
-    
+
     $('#blc-bulk-action-form').submit(function(){
         var action = $('#blc-bulk-action').val(), message;
         if ( action ==  '-1' ){
             action = $('#blc-bulk-action2').val();
         }
-        
+
         if ( action == 'bulk-delete-sources' ){
             //Convey the gravitas of deleting link sources.
     		message = '<?php
 				echo esc_js( html_entity_decode( __( "Are you sure you want to delete all posts, bookmarks or other items that contain any of the selected links? This action can't be undone.\n'Cancel' to stop, 'OK' to delete" ),
 					ENT_QUOTES | ENT_HTML401,
 				get_bloginfo( 'charset' ) ) );
-			?>'; 
+			?>';
             if ( !confirm(message) ){
                 return false;
             }
@@ -839,30 +839,30 @@ jQuery(function($){
 				echo esc_js( html_entity_decode( __( "Are you sure you want to remove the selected links? This action can't be undone.\n'Cancel' to stop, 'OK' to remove" ),
 					ENT_QUOTES | ENT_HTML401,
 				get_bloginfo( 'charset' ) ) );
-			?>'; 
+			?>';
             if ( !confirm(message) ){
                 return false;
             }
         }
     });
-    
+
     //------------------------------------------------------------
     // Manipulate highlight settings for permanently broken links
     //------------------------------------------------------------
     var highlight_permanent_failures_checkbox = $('#highlight_permanent_failures');
     var failure_duration_threshold_input = $('#failure_duration_threshold');
-    
+
     //Apply/remove highlights when the checkbox is (un)checked
     highlight_permanent_failures_checkbox.change(function(){
         //save_highlight_settings();
-        
+
         if ( this.checked ){
             $('#blc-links tr.blc-permanently-broken').addClass('blc-permanently-broken-hl');
         } else {
             $('#blc-links tr.blc-permanently-broken').removeClass('blc-permanently-broken-hl');
         }
     });
-    
+
     //Apply/remove highlights when the duration threshold is changed.
     failure_duration_threshold_input.change(function(){
         var new_threshold = parseInt($(this).val());
@@ -870,9 +870,9 @@ jQuery(function($){
         if (isNaN(new_threshold) || (new_threshold < 1)) {
             return;
         }
-        
+
         highlight_permanent_failures = highlight_permanent_failures_checkbox.is(':checked');
-        
+
         $('#blc-links tr.blc-row').each(function(index){
             var days_broken = $(this).attr('data-days-broken');
             if ( days_broken >= new_threshold ){
@@ -885,7 +885,7 @@ jQuery(function($){
             }
         });
     });
-    
+
     //Show/hide table columns dynamically
     $('#blc-column-selector input[type="checkbox"]').change(function(){
         var checkbox = $(this);
@@ -895,27 +895,27 @@ jQuery(function($){
         } else {
             $('td.column-'+column_id+', th.column-'+column_id, '#blc-links').addClass('hidden');
         }
-        
-        //Recalculate colspan's for detail rows to take into account the changed number of 
+
+        //Recalculate colspan's for detail rows to take into account the changed number of
         //visible columns. Otherwise you can get some ugly layout glitches.
         $('#blc-links tr.blc-link-details td').attr(
-            'colspan', 
+            'colspan',
             $('#blc-column-selector input[type="checkbox"]:checked').length+1
         );
     });
-    
-    //Unlike other fields in "Screen Options", the links-per-page setting 
+
+    //Unlike other fields in "Screen Options", the links-per-page setting
     //is handled using straight form submission (POST), not AJAX.
     $('#blc-per-page-apply-button').click(function(){
-        $('#adv-settings').submit();    
+        $('#adv-settings').submit();
     });
-    
+
     $('#blc_links_per_page').keypress(function(e){
         if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
             $('#adv-settings').submit();
-        }   
+        }
     });
-    
+
     //Toggle status code colors when the corresponding checkbox is toggled
     $('#table_color_code_status').click(function(){
         if ( $(this).is(':checked') ){
@@ -924,8 +924,8 @@ jQuery(function($){
             $('#blc-links').removeClass('color-code-link-status');
         }
     });
-    
-    //Show the bulk edit/find & replace form when the user applies the appropriate bulk action 
+
+    //Show the bulk edit/find & replace form when the user applies the appropriate bulk action
     $('#doaction, #doaction2').click(function(e){
         var n = $(this).attr('id').substr(2);
         if ( $('select[name="'+n+'"]').val() == 'bulk-edit' ) {
@@ -936,13 +936,13 @@ jQuery(function($){
             }
         }
     });
-    
+
     //Hide the bulk edit/find & replace form when "Cancel" is clicked
     $('#bulk-edit .cancel').click(function(){
         $('#bulk-edit').hide();
         return false;
     });
-    
+
     //Minimal input validation for the bulk edit form
     $('#bulk-edit input[type="submit"]').click(function(e){
         if( $('#bulk-edit input[name="search"]').val() == '' ){
@@ -951,7 +951,7 @@ jQuery(function($){
             e.preventDefault();
             return;
         }
-        
+
         if ($('tbody th.check-column input:checked').length == 0){
 			alert('<?php echo esc_js( __( 'Select one or more links to edit.' ) ); ?>');
             e.preventDefault();
