@@ -1,5 +1,5 @@
-=== MainWP Broken Links Checker Extension ===
-Plugin Name: MainWP Broken Links Checker Extension
+=== MainWP Broken Links Checker Extension - Retired Extension and Unsupported ===
+Plugin Name: MainWP Broken Links Checker Extension (Retired)
 Plugin URI: https://mainwp.com
 Description: MainWP Broken Links Checker Extension allows you to scan and fix broken links on your child sites. Requires the MainWP Dashboard Plugin.
 Version: 4.0
@@ -15,6 +15,9 @@ Author URI: https://mainwp.com
 1. Enable or Disable extension on the "Extensions" page in the dashboard
 
 == Changelog ==
+
+= 24-1-2020 =
+* Extension retired
 
 = 4.0 - 8-27-2019 =
 * Updated: extension UI/UX redesign
