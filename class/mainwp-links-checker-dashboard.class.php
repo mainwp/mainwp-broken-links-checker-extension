@@ -68,7 +68,7 @@ class MainWP_Links_Checker_Dashboard {
  			</tbody>
 		  <tfoot>
       	<tr>
-		   		<th class="no-sort collapsing check-column"><span class="ui checkbox"><input type="checkbox"></span></th>
+		   		<th class="no-sort collapsing"><span class="ui checkbox"><input type="checkbox"></span></th>
 		  		<th><?php _e( 'Site', 'mainwp-broken-links-checker-extension' ); ?></th>
 		  		<th class="no-sort collapsing"><i class="sign in icon"></i></th>
 		  		<th><?php _e( 'URL', 'mainwp-broken-links-checker-extension' ); ?></th>

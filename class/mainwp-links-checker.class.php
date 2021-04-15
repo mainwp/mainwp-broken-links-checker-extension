@@ -576,25 +576,25 @@ class MainWP_Links_Checker
 		<div class="ui hidden divider"></div>
 		<div class="ui grid">
 			<div class="four wide column center aligned">
-				<div class="ui red statistic">
+				<div class="ui large red statistic">
 			    <div class="value"><?php echo $broken; ?></div>
 			    <div class="label"><?php _e( 'Broken', 'mainwp-broken-links-checker-extension' ); ?></div>
 			  </div>
 			</div>
 			<div class="four wide column center aligned">
-				<div class="ui statistic">
+				<div class="ui large statistic">
 			    <div class="value"><?php echo $redirects; ?></div>
 			    <div class="label"><?php _e( 'Redirected', 'mainwp-broken-links-checker-extension' ); ?></div>
 			  </div>
 			</div>
 			<div class="four wide column center aligned">
-				<div class="ui statistic">
+				<div class="ui large statistic">
 			    <div class="value"><?php echo $dismissed; ?></div>
 			    <div class="label"><?php _e( 'Dismissed', 'mainwp-broken-links-checker-extension' ); ?></div>
 			  </div>
 			</div>
 			<div class="four wide column center aligned">
-				<div class="ui green statistic">
+				<div class="ui large green statistic">
 			    <div class="value"><?php echo $all; ?></div>
 			    <div class="label"><?php _e( 'All Links', 'mainwp-broken-links-checker-extension' ); ?></div>
 			  </div>
@@ -623,10 +623,10 @@ class MainWP_Links_Checker
 			$dismissed = intval( $result->count_dismissed );
 			$all = intval( $result->count_total );
 
-			$broken_link = '<a class="value" href="' . $link_prefix .'broken" >' . $broken . '</a>';
-			$redirects_link = '<a class="value" href="' . $link_prefix .'redirects" >' . $redirects . '</a>';
-			$dismissed_link = '<a class="value" href="' . $link_prefix .'dismissed">' . $dismissed . '</a>';
-			$all_link = '<a class="value" href="' . $link_prefix .'all">' . $all . '</a>';
+			$broken_link = '<span class="edit"><a href="' . $link_prefix .'broken" >' . $broken . '</a></span>';
+			$redirects_link = '<span class="edit"><a href="' . $link_prefix .'redirects" >' . $redirects . '</a></span>';
+			$dismissed_link = '<span class="edit"><a href="' . $link_prefix .'dismissed">' . $dismissed . '</a></span>';
+			$all_link = '<span class="edit"><a href="' . $link_prefix .'all">' . $all . '</a></span>';
 		}
 
 		?>
@@ -652,26 +652,26 @@ class MainWP_Links_Checker
 		<?php else : ?>
 			<div class="ui grid">
 				<div class="four wide column center aligned">
-					<div class="ui red statistic">
-				    <?php echo $broken_link; ?>
+					<div class="ui large red statistic">
+				    <div class="value"><?php echo $broken_link; ?></div>
 				    <div class="label"><?php _e( 'Broken', 'mainwp-broken-links-checker-extension' ); ?></div>
 				  </div>
 				</div>
 				<div class="four wide column center aligned">
-					<div class="ui statistic">
-				    <?php echo $redirects_link; ?>
+					<div class="ui large statistic">
+				    <div class="value"><?php echo $redirects_link; ?></div>
 				    <div class="label"><?php _e( 'Redirected', 'mainwp-broken-links-checker-extension' ); ?></div>
 				  </div>
 				</div>
 				<div class="four wide column center aligned">
-					<div class="ui statistic">
-				    <?php echo $dismissed_link; ?>
+					<div class="ui large statistic">
+				    <div class="value"><?php echo $dismissed_link; ?></div>
 				    <div class="label"><?php _e( 'Dismissed', 'mainwp-broken-links-checker-extension' ); ?></div>
 				  </div>
 				</div>
 				<div class="four wide column center aligned">
-					<div class="ui green statistic">
-				    <?php echo $all_link; ?>
+					<div class="ui large green statistic">
+				    <div class="value"><?php echo $all_link; ?></div>
 				    <div class="label"><?php _e( 'All Links', 'mainwp-broken-links-checker-extension' ); ?></div>
 				  </div>
 				</div>
@@ -1146,10 +1146,7 @@ class MainWP_Links_Checker
 			jQuery( '#mainwp-blc-links-table' ).DataTable( {
 				"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
 				"order": [ [ 0, "asc" ] ],
-				"language": { "emptyTable": "No links found." },
-				"drawCallback": function( settings ) {
-					jQuery( '#mainwp-blc-links-table .ui.dropdown').dropdown();
-				},
+				"language": { "emptyTable": "No links found." }
 			} );
 			</script>
 		</div>

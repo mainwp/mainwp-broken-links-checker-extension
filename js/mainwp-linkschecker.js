@@ -11,11 +11,11 @@ jQuery( document ).ready(function($) {
             return false;
 	});
 
-	$( '#mwp_linkschecker_btn_display' ).live('click', function() {
+	$( '#mwp_linkschecker_btn_display' ).on('click', function() {
 		$( this ).closest( 'form' ).submit();
 	});
 
-	$( '.mwp-linkschecker-upgrade-noti-dismiss' ).live('click', function() {
+	$( '.mwp-linkschecker-upgrade-noti-dismiss' ).on('click', function() {
 		var parent = $( this ).closest( '.ext-upgrade-noti' );
 		parent.hide();
 		var data = {
@@ -28,7 +28,7 @@ jQuery( document ).ready(function($) {
 		return false;
 	});
 
-	  $( '.mwp-linkschecker-invalid-noti-dismiss' ).live('click', function() {
+	  $( '.mwp-linkschecker-invalid-noti-dismiss' ).on('click', function() {
 		  var parent = $( this ).closest( '.ext-invalid-noti' );
 		  parent.hide();
 		  var data = {
